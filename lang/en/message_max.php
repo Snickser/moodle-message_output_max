@@ -15,17 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for telegram message plugin.
+ * Strings for MAX message plugin.
  *
- * @package message_telegram
- * @author  Mike Churchward
- * @copyright  2017 onwards Mike Churchward (mike.churchward@poetgroup.org)
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     message_max
+ * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['alreadyconnected'] = '✅ Your Telegram account is linked';
+$string['alreadyconnected'] = '✅ Your MAX account is linked';
 $string['botanswer1'] = '🤔 I would reply privately, but we havent met yet ☺️';
 $string['botanswer2'] = '👍 I replied privately';
 $string['botcertdownload'] = '📥 Download';
@@ -73,21 +72,21 @@ $string['configsitebotsecret'] = 'Generated randomly and automatically if empty.
 $string['configsitebottoken'] = 'Enter the site bot token from Botfather here.';
 $string['configsitebotusername'] = 'This will be filled in automatically when you save the bot token.';
 $string['configstriptags'] = 'Strip all html tags from "Text" formatted message (in "HTML" mode unresolved tags are always removed).';
-$string['configtelegramlog'] = 'Write debug info into {$a}/telegram.log file.';
-$string['configtelegramlogdump'] = 'For debugging purposes, write the message to a log file.';
-$string['configtelegramwebhook'] = 'This Telegram webhook is for testing purposes, do not enable it, otherwise push button twice!';
+$string['configmaxlog'] = 'Write debug info into {$a}/max.log file.';
+$string['configmaxlogdump'] = 'For debugging purposes, write the message to a log file.';
+$string['configmaxwebhook'] = 'This MAX webhook is for testing purposes, do not enable it, otherwise push button twice!';
 $string['configtgext'] = 'You may need to use an external messaging service, such as bypass ratelimit, or ensure that messages are delivered.';
-$string['connectinstructions'] = 'Once you have clicked the link below, you will need to allow the link to open in Telegram with
-your Telegram account. In Telegram, click the "Start" button in the "{$a}" chat that opens to connect your account to Moodle.
+$string['connectinstructions'] = 'Once you have clicked the link below, you will need to allow the link to open in MAX with
+your MAX account. In MAX, click the "Start" button in the "{$a}" chat that opens to connect your account to Moodle.
 Once completed, come back to this page and click "Save changes". Full documentation
-<a href="https://docs.moodle.org/33/en/Telegram_message_processor#Configuring_user_preferences" target="_blank">here</a>.';
-$string['connectme'] = 'Connect my account to Telegram';
-$string['connectmemenu'] = 'Connect my account to Telegram';
-$string['customfield'] = 'If there is an additional user profile field "telegram_username", it will be filled in automatically.';
+<a href="https://docs.moodle.org/33/en/MAX_message_processor#Configuring_user_preferences" target="_blank">here</a>.';
+$string['connectme'] = 'Connect my account to MAX';
+$string['connectmemenu'] = 'Connect my account to MAX';
+$string['customfield'] = 'If there is an additional user profile field "max_username", it will be filled in automatically.';
 
 $string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})</br>
-You can find new versions of the plugin at <a href=https://github.com/Snickser/moodle-message_output_telegram>GitHub.com</a>
-<img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_telegram.svg"><br>
+You can find new versions of the plugin at <a href=https://github.com/Snickser/moodle-message_output_max>GitHub.com</a>
+<img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_max.svg"><br>
 Please send me some <a href="https://yoomoney.ru/fundraise/143H2JO3LLE.240720">donate</a>😊</div>
 TON UQA1vhoJmBLgzTHKbJuuscr6UPwnP9TEH3eJYFKIiVgUIaro<br>
 BTC 1GFTTPCgRTC8yYL1gU7wBZRfhRNRBdLZsq<br>
@@ -99,27 +98,27 @@ $string['enter_phone'] = 'For better interaction with curators, please provide y
 $string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';
 $string['firstregister'] = 'First, register on the site ';
 $string['fullmessagehtml'] = 'Use fullmessagehtml';
-$string['notconfigured'] = 'The Telegram server hasn\'t been configured so Telegram messages cannot be sent';
+$string['notconfigured'] = 'The MAX server hasn\'t been configured so MAX messages cannot be sent';
 
 $string['parse_html'] = 'HTML format';
 $string['parse_text'] = 'Text only';
 $string['parsemode'] = 'Parse mode';
 $string['phonefield'] = 'Phone number save field';
 $string['phonefield_desc'] = 'This field will be filled automatically after the student submits their contact information.';
-$string['pluginname'] = 'Telegram';
+$string['pluginname'] = 'MAX';
 $string['provide'] = '📱 Provide a phone number';
 $string['provide_help'] = 'Provide a phone number';
-$string['removetelegram'] = 'Remove Telegram connection';
+$string['removemax'] = 'Remove MAX connection';
 $string['reportenabler'] = 'Enable users personal data report';
-$string['reportenabler_desc1'] = '<font color=red>Please note that users personal data is transferred to third-party Telegram servers, this may violate the law of your country.</font>';
+$string['reportenabler_desc1'] = '<font color=red>Please note that users personal data is transferred to third-party MAX servers, this may violate the law of your country.</font>';
 $string['reportenabler_desc2'] = 'This option enables selected roles to view personal data of course students.';
 $string['reportfields'] = 'Fields in report';
-$string['requirehttps'] = 'Site must use HTTPS for Telegram\'s webhook function.';
-$string['setupinstructions'] = 'Create a new Telegram Bot using Botfather. Click the Botfather link below and open it in Telegram.
-Use the "/newbot" command in Telegram to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
+$string['requirehttps'] = 'Site must use HTTPS for MAX\'s webhook function.';
+$string['setupinstructions'] = 'Create a new MAX Bot using Botfather. Click the Botfather link below and open it in MAX.
+Use the "/newbot" command in MAX to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
 unique bot username, for example "{$a->username}". Full documentation
-<a href="https://docs.moodle.org/33/en/Telegram_message_processor" target="_blank">here</a>.';
-$string['setwebhook'] = 'Setup Telegram webhook';
+<a href="https://docs.moodle.org/33/en/MAX_message_processor" target="_blank">here</a>.';
+$string['setwebhook'] = 'Setup MAX webhook';
 $string['sitebotname'] = 'Bot name for site';
 $string['sitebotpay'] = 'Payment token';
 $string['sitebotpaycosts'] = 'Predefined amounts';
@@ -128,15 +127,15 @@ $string['sitebottoken'] = 'Bot token for site';
 $string['sitebottokennotsetup'] = 'Bot token for site must be specified in plugin settings.';
 $string['sitebotusername'] = 'Bot username for site';
 $string['striptags'] = 'Strip tags';
-$string['telegrambottoken'] = 'Telegram bot token';
-$string['telegramchatid'] = 'Telegram chat id';
-$string['telegramlog'] = 'Enable logging';
-$string['telegramlogdump'] = 'Dump message to log';
-$string['telegramwebhook'] = 'Webhook';
-$string['telegramwebhookdump'] = 'Dump webhook data to log';
+$string['maxbottoken'] = 'MAX bot token';
+$string['maxchatid'] = 'MAX chat id';
+$string['maxlog'] = 'Enable logging';
+$string['maxlogdump'] = 'Dump message to log';
+$string['maxwebhook'] = 'Webhook';
+$string['maxwebhookdump'] = 'Dump webhook data to log';
 $string['tgext'] = 'Path to external sender';
 $string['usernamefield'] = 'Username save field';
-$string['usernamefield_desc'] = 'Default short name for extended user profile field is "telegram_username".';
+$string['usernamefield_desc'] = 'Default short name for extended user profile field is "max_username".';
 
 $string['warnreport_desc'] = 'Display warning before print report.';
 $string['welcome'] = '✅ Your account has been successfully linked!';

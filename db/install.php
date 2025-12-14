@@ -23,7 +23,7 @@
  */
 
 /**
- * Install the Telegram message processor.
+ * Install the MAX message processor.
  */
 function xmldb_message_max_install() {
     global $DB;

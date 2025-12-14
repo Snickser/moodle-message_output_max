@@ -31,12 +31,12 @@ if ($ADMIN->fulltree) {
         '',
     ));
 
-    $telegrammanager = new message_max\manager();
+    $maxmanager = new message_max\manager();
 
-    $sitebottoken = $telegrammanager->config('sitebottoken');
-    $sitebotsecret = $telegrammanager->config('sitebotsecret');
-    $botname = $telegrammanager->config('sitebotname');
-    $botusername = $telegrammanager->config('sitebotusername');
+    $sitebottoken = $maxmanager->config('sitebottoken');
+    $sitebotsecret = $maxmanager->config('sitebotsecret');
+    $botname = $maxmanager->config('sitebotname');
+    $botusername = $maxmanager->config('sitebotusername');
 
     if (empty($sitebotsecret)) {
         $sitebotsecret = bin2hex(random_bytes(32));
@@ -44,10 +44,10 @@ if ($ADMIN->fulltree) {
     }
 
     if (!empty($sitebottoken)) {
-        $telegrammanager->update_bot_info();
+        $maxmanager->update_bot_info();
     }
 
-    $telegrammanager = new message_max\manager();
+    $maxmanager = new message_max\manager();
     if (empty($sitebottoken)) {
         $site = get_site();
         $uniquename = $site->fullname . ' ' . get_string('notifications');
@@ -65,13 +65,13 @@ if ($ADMIN->fulltree) {
         // The username cannot be longer than 32 characters total, and must end in "bot".
         $botusername = substr($botusername, 0, 29) . 'Bot';
 
-        $url = 'https://telegram.me/botfather';
+        $url = 'https://max.me/botfather';
         $link = '<p><a href="' . $url . '" target="_blank">' . $url . '</a></p>';
         $a = new stdClass();
         $a->name = $uniquename;
         $a->username = $botusername;
         $text = get_string('setupinstructions', 'message_max', $a);
-        $settings->add(new admin_setting_heading('setuptelegram', '', $text . $link));
+        $settings->add(new admin_setting_heading('setupmax', '', $text . $link));
     }
 
     $settings->add(new admin_setting_configtext(
@@ -115,11 +115,11 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_heading(
         'message_max_webhook',
-        get_string('telegramwebhook', 'message_max'),
+        get_string('maxwebhook', 'message_max'),
         null,
     ));
 
-    $url = new moodle_url('/message/output/telegram/telegramconnect.php', ['sesskey' => sesskey(), 'action' => 'setwebhook']);
+    $url = new moodle_url('/message/output/max/maxconnect.php', ['sesskey' => sesskey(), 'action' => 'setwebhook']);
     $link = html_writer::tag(
         'a',
         get_string('setwebhook', 'message_max'),
@@ -128,8 +128,8 @@ if ($ADMIN->fulltree) {
 
     $setting = new admin_setting_configcheckbox(
         'message_max/webhook',
-        get_string('telegramwebhook', 'message_max'),
-        $link . '<br>' . get_string('configtelegramwebhook', 'message_max'),
+        get_string('maxwebhook', 'message_max'),
+        $link . '<br>' . get_string('configmaxwebhook', 'message_max'),
         false
     );
     $settings->add($setting);
@@ -269,23 +269,23 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        'message_max/telegramlog',
-        get_string('telegramlog', 'message_max'),
-        get_string('configtelegramlog', 'message_max', $CFG->tempdir),
+        'message_max/maxlog',
+        get_string('maxlog', 'message_max'),
+        get_string('configmaxlog', 'message_max', $CFG->tempdir),
         false
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        'message_max/telegramlogdump',
-        get_string('telegramlogdump', 'message_max'),
-        get_string('configtelegramlogdump', 'message_max'),
+        'message_max/maxlogdump',
+        get_string('maxlogdump', 'message_max'),
+        get_string('configmaxlogdump', 'message_max'),
         false
     ));
 
     $settings->add(new admin_setting_configcheckbox(
-        'message_max/telegramwebhookdump',
-        get_string('telegramwebhookdump', 'message_max'),
-        get_string('configtelegramlogdump', 'message_max'),
+        'message_max/maxwebhookdump',
+        get_string('maxwebhookdump', 'message_max'),
+        get_string('configmaxlogdump', 'message_max'),
         false
     ));
 
