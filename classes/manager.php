@@ -372,6 +372,7 @@ class manager {
      * Send a MAX API command and return the results.
      * @param string $command The API command to send.
      * @param array $params The parameters to send to the API command. Can be ommited.
+     * @param int $method Get or Post method. Can be ommited.
      * @return object The JSON decoded return object.
      */
     public function send_api_command($command, $params = null, $method = 0) {
