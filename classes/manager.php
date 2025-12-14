@@ -97,9 +97,10 @@ class manager {
             }
         } else {
             $response = $this->send_api_command(
-                'messages?user_id=' . $chatid,
+                'messages?user_id=' . $chatid . '&disable_link_preview=true',
                 [
                  'text' => $message,
+                 'format' => 'html',
                 ],
                 1
             );
