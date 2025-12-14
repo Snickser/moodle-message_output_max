@@ -97,7 +97,7 @@ class manager {
             }
         } else {
             $response = $this->send_api_command(
-                'messages?user_id='.$chatid,
+                'messages?user_id=' . $chatid,
                 [
                  'text' => $message,
                 ],
@@ -361,7 +361,6 @@ class manager {
     public function get_updates() {
         $response = $this->send_api_command('updates');
 
-
         if ($response) {
             return $response;
         } else {
@@ -394,14 +393,13 @@ class manager {
         ];
 
         $location = 'https://platform-api.max.ru/' . $command;
-        
 
         if ($method) {
-	    $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
-	    $response = $this->curl->post($location, $payload, $options);
-	} else {
-	    $response = $this->curl->get($location, $params, $options);
-	}
+            $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
+            $response = $this->curl->post($location, $payload, $options);
+        } else {
+            $response = $this->curl->get($location, $params, $options);
+        }
 
         if (!empty($this->curl->errno)) {
             return $this->curl->error;
