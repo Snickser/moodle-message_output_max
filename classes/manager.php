@@ -84,7 +84,7 @@ class manager {
         } else if ($this->config('striptags')) {
             $message = html_to_text($message);
         }
-        $message = mb_substr($message, 0, 4096, 'UTF-8');
+        $message = mb_substr($message, 0, 4000, 'UTF-8');
 
         if ($this->config('tgext')) {
             if (is_file($this->config('tgext')) && is_executable($this->config('tgext'))) {
@@ -97,15 +97,13 @@ class manager {
             }
         } else {
             $response = $this->send_api_command(
-                'sendMessage',
+                'messages?user_id='.$chatid,
                 [
-                 'chat_id' => $chatid,
                  'text' => $message,
-                 'parse_mode' => $this->config('parsemode'),
-                 'link_preview_options' => '{"is_disabled":true}',
-                ]
+                ],
+                1
             );
-            if ($response->ok != true) {
+            if ($response != true) {
                 $fname = $CFG->tempdir . '/max/';
                 // Check if spool dir not exest.
                 if (!is_dir($fname)) {
@@ -165,7 +163,7 @@ class manager {
         if (!$this->is_chatid_set($userid, $preferences)) {
             // Temporarily set the user's chatid to the sesskey value for security.
             $key = $this->set_usersecret($userid);
-            $url = 'https://t.me/' . $this->config('sitebotusername') . '?start=' . $key;
+            $url = 'https://max.ru/' . $this->config('sitebotusername') . '?start=' . $key;
 
             $configbutton = get_string('connectinstructions', 'message_max', $this->config('sitebotname'));
             $configbutton .= '<div align="center"><a href="' . $url . '" target="_blank">' .
@@ -173,8 +171,8 @@ class manager {
         } else {
             $url = new \moodle_url($this->redirect_uri(), ['action' => 'removechatid', 'userid' => $userid,
                 'sesskey' => sesskey()]);
-            $configbutton = '<a target=_blank href="https://t.me/' . $this->config('sitebotusername') .
-            '?start">https://t.me/' . $this->config('sitebotusername') . '</a>' . '<br><br><a href="' . $url . '">' .
+            $configbutton = '<a target=_blank href="https://max.ru/' . $this->config('sitebotusername') .
+            '?start">https://max.ru/' . $this->config('sitebotusername') . '</a>' . '<br><br><a href="' . $url . '">' .
             get_string('removemax', 'message_max') . '</a>';
         }
 
@@ -271,7 +269,7 @@ class manager {
             return false;
         } else {
             $response = $this->send_api_command('me');
-            if ($response->name) {
+            if ($response->user_id) {
                 $this->set_config('sitebotname', $response->first_name);
                 $this->set_config('sitebotusername', $response->username);
                 return true;
@@ -299,11 +297,11 @@ class manager {
         } else {
             $results = $this->get_updates();
             if ($results !== false) {
-                foreach ($results as $object) {
-                    if (isset($object->message)) {
-                        if ($this->usersecret_match(substr($object->message->text, strlen('/start ')))) {
-                            set_user_preference('message_processor_max_chatid', $object->message->chat->id, $userid);
-                            $this->set_customprofile_username($userid, $object->message->from->username);
+                foreach ($results->updates as $object) {
+                    if (isset($object->user)) {
+                        if ($this->usersecret_match($object->payload)) {
+                            set_user_preference('message_processor_max_chatid', $object->user->user_id, $userid);
+                            $this->set_customprofile_username($userid, $object->user->name);
                             $this->send_message(get_string('welcome', 'message_max'), $userid);
                             break;
                         }
@@ -361,9 +359,11 @@ class manager {
      * @return object The JSON decoded results object.
      */
     public function get_updates() {
-        $response = $this->send_api_command('getUpdates');
-        if ($response->ok) {
-            return $response->result;
+        $response = $this->send_api_command('updates');
+
+
+        if ($response) {
+            return $response;
         } else {
             return false;
         }
@@ -393,13 +393,15 @@ class manager {
          ],
         ];
 
-        $location = 'https://platform-api.max.ru' . '/' . $command;
+        $location = 'https://platform-api.max.ru/' . $command;
+        
 
         if ($method) {
-    	    $response = $this->curl->post($location, $params, $options);
-    	} else {
-    	    $response = $this->curl->get($location, $params, $options);
-    	}
+	    $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
+	    $response = $this->curl->post($location, $payload, $options);
+	} else {
+	    $response = $this->curl->get($location, $params, $options);
+	}
 
         if (!empty($this->curl->errno)) {
             return $this->curl->error;
