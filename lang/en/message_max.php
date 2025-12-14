@@ -1,0 +1,142 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Strings for telegram message plugin.
+ *
+ * @package message_telegram
+ * @author  Mike Churchward
+ * @copyright  2017 onwards Mike Churchward (mike.churchward@poetgroup.org)
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+$string['alreadyconnected'] = '✅ Your Telegram account is linked';
+$string['botanswer1'] = '🤔 I would reply privately, but we havent met yet ☺️';
+$string['botanswer2'] = '👍 I replied privately';
+$string['botcertdownload'] = '📥 Download';
+$string['botcertificates'] = '/certificates - issued certificates';
+$string['botcerts'] = '📜 Your certificates:
+
+';
+$string['botcertselect'] = '📥 Select a certificate';
+$string['botcertyour'] = '💾 Your certificate';
+$string['botenrols'] = '🎓 Participation in courses:';
+$string['botentertext'] = '✏ ️ Enter your message text';
+$string['botevents'] = '🗓 Upcoming Events:
+
+';
+$string['botfaq'] = '⁉️ Frequently Asked Questions:';
+$string['botfaqtext'] = '';
+$string['bothelp'] = '👓 Helps
+/info - platform information
+/faq  - frequently asked questions
+/lang - language switching
+/courses - course list
+/events - upcoming
+/enrols - participation in courses
+/progress - status of course elements';
+$string['bothelp_anonymous'] = '👓 Helps
+/info - platform information
+/faq  - frequently asked questions';
+$string['botidontknow'] = 'I dont know what this is 🤷🏻 /help';
+$string['botlang'] = '🈯 Select language ({$a})';
+$string['botmessagehelp'] = '/message - send group message';
+$string['botmsgall'] = 'Тo all students';
+$string['botpay'] = '🏦 Select amount {$a}';
+$string['botpaydesc'] = 'To support the learning platform';
+$string['botpaytitle'] = 'Donation 🕉';
+$string['botstudents'] = '/students - personal data report';
+$string['botuserid'] = '👑 User ID: {$a}';
+$string['botuseridhelp'] = '/userid - select user';
+$string['configfullmessagehtml'] = 'Get message from "$eventdata->fullmessagehtml" (if available), or from "fullmessage" if not set.';
+$string['configparsemode'] = 'Formatting options: Text or HTML.';
+$string['configsitebotmsgroles'] = 'Who is allowed to send mass messages to course groups and use reports.';
+$string['configsitebotname'] = 'This will be filled in automatically when you save the bot token.';
+$string['configsitebotpay'] = 'Bot payment token for accepting payments.';
+$string['configsitebotpaycosts'] = 'Separated by commas.';
+$string['configsitebotsecret'] = 'Generated randomly and automatically if empty.';
+$string['configsitebottoken'] = 'Enter the site bot token from Botfather here.';
+$string['configsitebotusername'] = 'This will be filled in automatically when you save the bot token.';
+$string['configstriptags'] = 'Strip all html tags from "Text" formatted message (in "HTML" mode unresolved tags are always removed).';
+$string['configtelegramlog'] = 'Write debug info into {$a}/telegram.log file.';
+$string['configtelegramlogdump'] = 'For debugging purposes, write the message to a log file.';
+$string['configtelegramwebhook'] = 'This Telegram webhook is for testing purposes, do not enable it, otherwise push button twice!';
+$string['configtgext'] = 'You may need to use an external messaging service, such as bypass ratelimit, or ensure that messages are delivered.';
+$string['connectinstructions'] = 'Once you have clicked the link below, you will need to allow the link to open in Telegram with
+your Telegram account. In Telegram, click the "Start" button in the "{$a}" chat that opens to connect your account to Moodle.
+Once completed, come back to this page and click "Save changes". Full documentation
+<a href="https://docs.moodle.org/33/en/Telegram_message_processor#Configuring_user_preferences" target="_blank">here</a>.';
+$string['connectme'] = 'Connect my account to Telegram';
+$string['connectmemenu'] = 'Connect my account to Telegram';
+$string['customfield'] = 'If there is an additional user profile field "telegram_username", it will be filled in automatically.';
+
+$string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})</br>
+You can find new versions of the plugin at <a href=https://github.com/Snickser/moodle-message_output_telegram>GitHub.com</a>
+<img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_telegram.svg"><br>
+Please send me some <a href="https://yoomoney.ru/fundraise/143H2JO3LLE.240720">donate</a>😊</div>
+TON UQA1vhoJmBLgzTHKbJuuscr6UPwnP9TEH3eJYFKIiVgUIaro<br>
+BTC 1GFTTPCgRTC8yYL1gU7wBZRfhRNRBdLZsq<br>
+TRX TRGMc3b63Lus6ehLasbbHxsb2rHky5LbPe<br>
+<iframe src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=143H2JO3LLE.240720"
+width="330" height="50" frameborder="0" allowtransparency="true" scrolling="no"></iframe>';
+$string['enter'] = 'Enter';
+$string['enter_phone'] = 'For better interaction with curators, please provide your mobile phone number.';
+$string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';
+$string['firstregister'] = 'First, register on the site ';
+$string['fullmessagehtml'] = 'Use fullmessagehtml';
+$string['notconfigured'] = 'The Telegram server hasn\'t been configured so Telegram messages cannot be sent';
+
+$string['parse_html'] = 'HTML format';
+$string['parse_text'] = 'Text only';
+$string['parsemode'] = 'Parse mode';
+$string['phonefield'] = 'Phone number save field';
+$string['phonefield_desc'] = 'This field will be filled automatically after the student submits their contact information.';
+$string['pluginname'] = 'Telegram';
+$string['provide'] = '📱 Provide a phone number';
+$string['provide_help'] = 'Provide a phone number';
+$string['removetelegram'] = 'Remove Telegram connection';
+$string['reportenabler'] = 'Enable users personal data report';
+$string['reportenabler_desc1'] = '<font color=red>Please note that users personal data is transferred to third-party Telegram servers, this may violate the law of your country.</font>';
+$string['reportenabler_desc2'] = 'This option enables selected roles to view personal data of course students.';
+$string['reportfields'] = 'Fields in report';
+$string['requirehttps'] = 'Site must use HTTPS for Telegram\'s webhook function.';
+$string['setupinstructions'] = 'Create a new Telegram Bot using Botfather. Click the Botfather link below and open it in Telegram.
+Use the "/newbot" command in Telegram to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
+unique bot username, for example "{$a->username}". Full documentation
+<a href="https://docs.moodle.org/33/en/Telegram_message_processor" target="_blank">here</a>.';
+$string['setwebhook'] = 'Setup Telegram webhook';
+$string['sitebotname'] = 'Bot name for site';
+$string['sitebotpay'] = 'Payment token';
+$string['sitebotpaycosts'] = 'Predefined amounts';
+$string['sitebotsecret'] = 'Webhook secret';
+$string['sitebottoken'] = 'Bot token for site';
+$string['sitebottokennotsetup'] = 'Bot token for site must be specified in plugin settings.';
+$string['sitebotusername'] = 'Bot username for site';
+$string['striptags'] = 'Strip tags';
+$string['telegrambottoken'] = 'Telegram bot token';
+$string['telegramchatid'] = 'Telegram chat id';
+$string['telegramlog'] = 'Enable logging';
+$string['telegramlogdump'] = 'Dump message to log';
+$string['telegramwebhook'] = 'Webhook';
+$string['telegramwebhookdump'] = 'Dump webhook data to log';
+$string['tgext'] = 'Path to external sender';
+$string['usernamefield'] = 'Username save field';
+$string['usernamefield_desc'] = 'Default short name for extended user profile field is "telegram_username".';
+
+$string['warnreport_desc'] = 'Display warning before print report.';
+$string['welcome'] = '✅ Your account has been successfully linked!';
