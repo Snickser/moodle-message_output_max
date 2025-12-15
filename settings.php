@@ -58,7 +58,7 @@ if ($ADMIN->fulltree) {
         // The username cannot be longer than 32 characters total, and must end in "bot".
         $botusername = substr($botusername, 0, 29) . 'Bot';
 
-        $url = 'https://max.me/botfather';
+        $url = 'https://dev.max.ru/docs/chatbots/bots-create';
         $link = '<p><a href="' . $url . '" target="_blank">' . $url . '</a></p>';
         $a = new stdClass();
         $a->name = $uniquename;
