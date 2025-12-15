@@ -149,7 +149,7 @@ class max_sender extends \core\task\scheduled_task {
                 fclose($fh);
                 mtrace('delete forbidden ' . $chatid);
             } else {
-        	mtrace(serialize($response));
+                mtrace(serialize($response));
             }
             return true;
         }
