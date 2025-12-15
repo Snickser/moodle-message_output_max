@@ -120,10 +120,9 @@ $string['reportenabler_desc1'] = '<font color=red>Please note that users persona
 $string['reportenabler_desc2'] = 'This option enables selected roles to view personal data of course students.';
 $string['reportfields'] = 'Fields in report';
 $string['requirehttps'] = 'Site must use HTTPS for MAX\'s webhook function.';
-$string['setupinstructions'] = 'Create a new MAX Bot using Botfather. Click the Botfather link below and open it in MAX.
+$string['setupinstructions'] = 'Create a new MAX Bot using MasterBot. Click the Botfather link below and open it in MAX.
 Use the "/newbot" command in MAX to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
-unique bot username, for example "{$a->username}". Full documentation
-<a href="https://docs.moodle.org/33/en/MAX_message_processor" target="_blank">here</a>.';
+unique bot username, for example "{$a->username}".';
 $string['setwebhook'] = 'Setup MAX webhook';
 $string['sitebotname'] = 'Bot name for site';
 $string['sitebotpay'] = 'Payment token';

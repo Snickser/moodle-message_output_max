@@ -102,11 +102,11 @@ class manager {
                  'text' => $message,
                  'format' => 'html',
                 ],
-                1
+                1,
             );
-            if ($response != true) {
+            if (!isset($response->message->body)) {
                 $fname = $CFG->tempdir . '/max/';
-                // Check if spool dir not exest.
+                // Check if spool dir not exist.
                 if (!is_dir($fname)) {
                     mkdir($fname);
                 }
@@ -119,8 +119,8 @@ class manager {
 
         if ($this->config('maxlog')) {
             $buff = $today . " " . $userid . " " . $chatid . " " . mb_strlen($message);
-            if ($response->ok == true) {
-                $buff .= " " . $response->result->message_id;
+            if (isset($response->message->body->mid)) {
+                $buff .= " " . $response->message->body->mid;
             } else {
                 $buff .= " ERROR " . serialize($response);
             }
@@ -361,7 +361,6 @@ class manager {
      */
     public function get_updates() {
         $response = $this->send_api_command('updates');
-
         if ($response) {
             return $response;
         } else {

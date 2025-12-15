@@ -102,23 +102,28 @@ class max_sender extends \core\task\scheduled_task {
 
         $this->curl = new \curl();
 
-        $location = 'https://api.max.org/bot' . $token . '/sendMessage';
+        $location = 'https://platform-api.max.ru/messages?user_id=' . $chatid . '&disable_link_preview=true';
 
         $params = [
-         'chat_id' => $chatid,
-         'parse_mode' => $pmode,
+         'user_id' => $chatid,
+         'format' => 'html',
          'text' => $text,
-         'link_preview_options' => '{"is_disabled":true}',
         ];
+
+        $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
 
         $options = [
          'CURLOPT_RETURNTRANSFER' => true,
          'CURLOPT_TIMEOUT' => 30,
          'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
          'CURLOPT_SSLVERSION' => CURL_SSLVERSION_TLSv1_2,
+         'CURLOPT_HTTPHEADER' => [
+            'Authorization: ' . $token,
+            'Content-Type: application/json',
+         ],
         ];
 
-        $response = json_decode($this->curl->post($location, $params, $options));
+        $response = json_decode($this->curl->post($location, $payload, $options));
 
         // Ckeck curl error.
         if (!empty($this->curl->errno)) {
@@ -128,14 +133,14 @@ class max_sender extends \core\task\scheduled_task {
         }
 
         // Check max error.
-        if ($response->ok == true) {
-            mtrace($response->result->message_id);
+        if (isset($response->message->body)) {
+            mtrace($response->message->body->mid);
             unlink($file);
             fclose($fh);
             return false;
         } else {
             // Delete file and chatid if forbidden.
-            if ($response->error_code == 403) {
+            if ($response->code == 'chat.denied') {
                 $DB->delete_records(
                     'user_preferences',
                     [ 'name' => 'message_processor_max_chatid', 'value' => $chatid]
@@ -143,6 +148,8 @@ class max_sender extends \core\task\scheduled_task {
                 unlink($file);
                 fclose($fh);
                 mtrace('delete forbidden ' . $chatid);
+            } else {
+        	mtrace(serialize($response));
             }
             return true;
         }
