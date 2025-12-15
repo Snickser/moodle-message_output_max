@@ -52,16 +52,9 @@ if ($ADMIN->fulltree) {
         $site = get_site();
         $uniquename = $site->fullname . ' ' . get_string('notifications');
         $sitehostname = parse_url($CFG->wwwroot, PHP_URL_HOST);
-        $lastdot = strrpos($sitehostname, '.');
-        if ($lastdot !== false) {
-            $sitehostname = substr($sitehostname, 0, $lastdot);
-        }
-        $botusername = strrchr($sitehostname, '.');
-        if ($botusername === false) {
-            $botusername = $sitehostname;
-        } else {
-            $botusername = str_replace('.', '', $botusername);
-        }
+        $parts = explode('.', $sitehostname);
+        $botusername = $parts[0];
+
         // The username cannot be longer than 32 characters total, and must end in "bot".
         $botusername = substr($botusername, 0, 29) . 'Bot';
 
