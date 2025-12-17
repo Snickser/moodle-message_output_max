@@ -470,14 +470,12 @@ class manager {
      * @param  string $username
      * @return boolean|string Success.
      */
-    public function set_webhook_chatid($chatid = null, $text = null, $username = null) {
+    public function set_webhook_chatid($chatid = null, $key = null, $username = null) {
         global $DB;
 
-        if (empty($this->config('sitebottoken')) || empty($chatid) || empty($text)) {
+        if (empty($this->config('sitebottoken')) || empty($chatid) || empty($key)) {
             return false;
         } else {
-            $key = substr($text, 7);
-
             $sql = "name = :name AND " . $DB->sql_compare_text('value') . " = :secret";
             $params = [
             'name'   => 'message_processor_max_chatid',
