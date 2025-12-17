@@ -466,7 +466,7 @@ class manager {
     /**
      * Only if webHook has been created.
      * @param  string $chatid
-     * @param  string $text
+     * @param  string $key
      * @param  string $username
      * @return boolean|string Success.
      */
