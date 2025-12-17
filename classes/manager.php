@@ -338,20 +338,39 @@ class manager {
      * @return string Empty if successful, otherwise the error message.
      */
     public function set_webhook() {
+        $message = false;
         if (empty($this->config('sitebottoken'))) {
             $message = get_string('sitebottokennotsetup', 'message_max');
         } else {
             $url = new \moodle_url('/message/output/max/webhook.php');
-            $response = $this->send_api_command('setWebhook', ['url' => $url, 'allowed_updates' => 'message',
-            'secret_token' => $this->config('sitebotsecret'),
-            ]);
-            if (!empty($response) && isset($response->ok) && ($response->ok == true)) {
+            $response = $this->send_api_command('subscriptions', ['url' => $url->out(),
+            'secret' => $this->config('sitebotsecret'),
+            ], 1);
+            if (!empty($response) && isset($response->success) && ($response->success == true)) {
                 $this->set_config('webhook', '1');
                 $message = 'Webhook is set successfully';
-            } else if (!empty($response) && isset($response->error_code) && isset($response->description)) {
-                $message = $response->description;
+            } else if (!empty($response) && isset($response->message) && isset($response->message)) {
+                $message = $response->message;
             }
         }
+        return $message;
+    }
+
+    /**
+     * Remove the webhook for this site into the MAX Bot.
+     * @return string Empty if successful, otherwise the error message.
+     */
+    public function remove_webhook() {
+        $message = false;
+        $url = new \moodle_url('/message/output/max/webhook.php');
+        $response = $this->send_api_command('subscriptions?url=' . $url->out(), null, 2);
+        if (!empty($response) && isset($response->success) && ($response->success == true)) {
+            $this->set_config('webhook', '0');
+            $message = 'Webhook removed';
+        } else if (!empty($response) && isset($response->success) && isset($response->message)) {
+            $message = $response->message;
+        }
+
         return $message;
     }
 
@@ -395,9 +414,11 @@ class manager {
 
         $location = 'https://platform-api.max.ru/' . $command;
 
-        if ($method) {
+        if ($method == 1) {
             $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
             $response = $this->curl->post($location, $payload, $options);
+        } else if ($method == 2) {
+            $response = $this->curl->delete($location, null, $options);
         } else {
             $response = $this->curl->get($location, $params, $options);
         }
@@ -440,22 +461,6 @@ class manager {
             }
         }
         return true;
-    }
-
-    /**
-     * Remove the webhook for this site into the MAX Bot.
-     * @return string Empty if successful, otherwise the error message.
-     */
-    public function remove_webhook() {
-        $response = $this->send_api_command('deleteWebhook');
-        if (!empty($response) && isset($response->ok) && ($response->ok == true)) {
-            $this->set_config('webhook', '0');
-            $message = 'Webhook removed';
-        } else if (!empty($response) && isset($response->error_code) && isset($response->description)) {
-            $message = $response->description;
-        }
-
-        return $message;
     }
 
     /**
