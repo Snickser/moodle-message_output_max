@@ -125,7 +125,8 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         ],
         1
     );
-} else if (isset($data->message)) {
+    $response = $attachments;
+} else if (isset($data->message) && !isset($data->callback)) {
     $fromid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $chatid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $text = clean_param($data->message->body->text ?? null, PARAM_TEXT);
@@ -440,22 +441,26 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         foreach ($langs as $langcode => $name) {
             $buttons[] = [[
                 'text' => $name,
-                'callback_data' => '/lang ' . $langcode,
+                'payload' => '/lang ' . $langcode,
+                'type' => 'callback',
             ]];
         }
+
         $keyboard = [
-        'inline_keyboard' => $buttons,
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => $buttons],
         ];
+
         $params = [
-            'chat_id' => $fromid,
             'text' => get_string(
                 'botlang',
                 'message_max',
                 get_user_preferences('message_processor_max_lang', get_string('none'), $userid),
             ),
-            'reply_markup' => json_encode($keyboard),
+            'attachments' => [$keyboard],
         ];
-        $response = $tg->send_api_command('sendMessage', $params);
+        $response = $tg->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
+        $response = $params;
     } else if (strpos($text, '/message') === 0 && $userid) {
         $courses = enrol_get_all_users_courses($userid, false, '*');
         $buttons = [];
@@ -673,20 +678,13 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         $record->timemodified = time();
         $DB->insert_record('message_max', $record);
     }
-} else if (isset($data->pre_checkout_query)) {
-    if (isset($data->pre_checkout_query->id)) {
-        $response = $tg->send_api_command('answerPreCheckoutQuery', [
-           "pre_checkout_query_id" => $data->pre_checkout_query->id,
-           "ok" => 'True',
-        ]);
-    }
-} else if (isset($data->callback_query->data)) {
-    $fromid = clean_param($data->callback_query->from->id, PARAM_INT);
-    $chatid = clean_param($data->callback_query->message->chat->id, PARAM_INT);
+} else if (isset($data->callback->payload)) {
+    $fromid = clean_param($data->callback->user->user_id, PARAM_INT);
+    $chatid = $fromid;
 
     $record = $DB->get_record('message_max', ['chatid' => $chatid]);
-    $lastmsgid = clean_param($data->callback_query->message->message_id, PARAM_TEXT);
-    $lastdata = clean_param($data->callback_query->data, PARAM_TEXT);
+    $lastmsgid = clean_param($data->message->body->mid, PARAM_TEXT);
+    $lastdata = clean_param($data->callback->payload, PARAM_TEXT);
     $step = 'callback';
 
     $userids = $tg->get_userids_by_chatid($fromid);
@@ -701,7 +699,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         }
     }
 
-    if (strpos($data->callback_query->data, '/pay') === 0 && $cost = substr($data->callback_query->data, 5)) {
+    if (strpos($data->callback->payload, '/pay') === 0 && $cost = substr($data->callback->payload, 5)) {
         $fromid = clean_param($data->callback_query->from->id, PARAM_INT);
         $cost = $cost * 100;
         $response = $tg->send_api_command('sendInvoice', [
@@ -720,7 +718,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
            ]),
 
         ]);
-    } else if (strpos($data->callback_query->data, '/lang') === 0 && $lang = substr($data->callback_query->data, 6)) {
+    } else if (strpos($data->callback->payload, '/lang') === 0 && $lang = substr($data->callback->payload, 6)) {
         $languages = [
         'ru' => ['flag' => '🇷🇺'],
         'en' => ['flag' => '🇺🇸'],
@@ -733,13 +731,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         }
         if ($userid) {
             set_user_preference('message_processor_max_lang', $lang, $userid);
-            $tg->send_api_command(
-                'sendMessage',
-                [
-                'chat_id' => $fromid,
-                'text' => ($languages[$lang]['flag'] ?? 'Ⓜ️'),
-                ]
-            );
+            $tg->send_message(($languages[$lang]['flag'] ?? 'Ⓜ️'), $userid);
             $user = new stdClass();
             $user->id = $userid;
             $user->lang = $lang;
@@ -1211,7 +1203,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
 }
 
 if ($config->maxwebhookdump) {
-    file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? serialize($response) : serialize($data)) .
+    file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? print_r($response,true) : serialize($data)) .
     "\n\n", FILE_APPEND | LOCK_EX);
 }
 if ($fromid && isset($response->error_code)) {
