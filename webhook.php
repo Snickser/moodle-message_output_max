@@ -62,31 +62,52 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
     $newuser = $tg->set_webhook_chatid($userid, $data->payload, $data->user->name);
 
     if (empty($user->{$config->sitebotphonefield}) && ($user || $newuser)) {
-        $keyboard = [
-        'keyboard' => [
+        $attachments = [
         [
-        ['text' => get_string('provide', 'message_max'), 'request_contact' => true],
+        'type' => 'inline_keyboard',
+        'payload' => [
+            'buttons' => [
+                [
+                    [
+                        'type' => 'request_contact',
+                        'text' => get_string('provide', 'message_max'),
+                    ],
+                ],
+            ],
         ],
         ],
-        'resize_keyboard' => true,
-        'one_time_keyboard' => true,
-        'input_field_placeholder' => get_string('provide_help', 'message_max'),
         ];
         if ($user) {
             $text = get_string('welcometosite', 'moodle', ['firstname' => fullname($user)]);
         } else {
-            $text = get_string('welcometosite', 'moodle', ['firstname' => $data->message->from->first_name]);
+            $text = get_string('welcometosite', 'moodle', ['firstname' => $data->user->first_name]);
         }
         $text .= PHP_EOL . get_string('enter_phone', 'message_max');
     } else {
-        $keyboard = [
-        'keyboard' => [
-        ['/info', '/lang'],
-        ['/help'],
+        $attachments = [
+        [
+        'type' => 'inline_keyboard',
+        'payload' => [
+            'buttons' => [
+                [
+                    [
+                        'type' => 'message',
+                        'text' => '/info',
+                    ],
+                    [
+                        'type' => 'message',
+                        'text' => '/lang',
+                    ],
+                ],
+                [
+                    [
+                        'type' => 'message',
+                        'text' => '/help',
+                    ],
+                ],
+            ],
         ],
-        'resize_keyboard' => true,
-        'one_time_keyboard' => false,
-        'input_field_placeholder' => get_string('placeholdertypeorselect'),
+        ],
         ];
         if ($user) {
             $text = get_string('welcomeback', 'moodle', ['firstname' => fullname($user)]);
@@ -98,8 +119,9 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
     $response = $tg->send_api_command(
         'messages?user_id=' . $userid . '&disable_link_preview=true',
         [
-        'text' => $text,
-        'format' => 'html',
+         'text' => $text,
+         'format' => 'html',
+         'attachments' => $attachments,
         ],
         1
     );
