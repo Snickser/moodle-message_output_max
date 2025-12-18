@@ -422,19 +422,24 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $text = $head . get_string('none');
         }
 
-        $keyboard = [
-            'inline_keyboard' => [[
-            ['text' => '+ ' . get_string('newevent', 'calendar'), 'callback_data' => '/newevent'],
-            ]],
-        ];
-        $response = $tg->send_api_command(
-            'sendMessage',
-            [
-            'chat_id' => $fromid,
-            'text' => $text,
-            'parse_mode' => 'HTML',
-            'reply_markup' => json_encode($keyboard),
+        $keyboard = [[
+            'type' => 'inline_keyboard',
+            'payload' => [
+                'buttons' => [
+                    [
+            ['text' => '+ ' . get_string('newevent', 'calendar'), 'type' => 'callback', 'payload' => '/newevent'],
             ]
+            ]
+            ],
+        ]];
+        $response = $tg->send_api_command(
+            'messages?user_id=' . $chatid . '&disable_link_preview=true',
+            [
+            'text' => $text,
+            'format' => 'HTML',
+            'attachments' => $keyboard,
+            ],
+            1
         );
     } else if (strpos($text, '/lang') === 0 && $userid) {
         $buttons = [];
@@ -1203,7 +1208,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
 }
 
 if ($config->maxwebhookdump) {
-    file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? print_r($response,true) : serialize($data)) .
+    file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? print_r($response, true) : serialize($data)) .
     "\n\n", FILE_APPEND | LOCK_EX);
 }
 if ($fromid && isset($response->error_code)) {
