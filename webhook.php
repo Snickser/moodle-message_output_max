@@ -163,14 +163,15 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         }
     }
 
-    if ($userid && isset($data->message->contact->phone_number)) {
-        if ($data->message->contact->user_id == $fromid) {
-            $phone = clean_param($data->message->contact->phone_number, PARAM_TEXT);
-            $phone = trim($phone);
+    if ($userid && isset($data->message->body->attachments[0]->payload->vcf_info)) {
+        if ($data->message->body->attachments[0]->payload->max_info->user_id == $fromid) {
+            $vcf = $data->message->body->attachments[0]->payload->vcf_info;
+            $line = preg_replace("/\r\n[ \t]/", '', $vcf);
+            $phone = preg_replace('/\D+/', '', strstr($line, 'cell:'));
 
             if ($phone && ($config->sitebotphonefield == 'phone1' || $config->sitebotphonefield == 'phone2')) {
                 $DB->set_field('user', $config->sitebotphonefield, $phone, ['id' => $userid]);
-                $response = max_send_menu($tg, $fromid, get_string('thanks') . ' 🙂');
+                $tg->send_message(get_string('thanks') . ' 🙂', $userid);
             } else if ($phone && $config->sitebotphonefield) {
                 $shortname = preg_replace('/^profile_field_/', '', $config->sitebotphonefield);
                 if ($shortname) {
@@ -192,11 +193,11 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
                         ];
                         $DB->insert_record('user_info_data', $record);
                     }
-                    $response = max_send_menu($tg, $fromid, get_string('thanks') . ' 🙂');
+                    $tg->send_message(get_string('thanks') . ' 🙂', $userid);
                 }
             }
         } else {
-            $tg->send_message('😕 ' . get_string('unknownuser'), $userid);
+            $tg->send_message('😕 ' . get_string('unknownuser'), $fromid);
         }
     } else if (strpos($text, '/pay') === 0 && $config->sitebotpay) {
         if (!$cost = (int)substr($text, 5)) {
@@ -428,8 +429,8 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
                 'buttons' => [
                     [
             ['text' => '+ ' . get_string('newevent', 'calendar'), 'type' => 'callback', 'payload' => '/newevent'],
-            ]
-            ]
+                    ],
+                ],
             ],
         ]];
         $response = $tg->send_api_command(
@@ -451,10 +452,10 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             ]];
         }
 
-        $keyboard = [
+        $keyboard = [[
         'type' => 'inline_keyboard',
         'payload' => ['buttons' => $buttons],
-        ];
+        ]];
 
         $params = [
             'text' => get_string(
@@ -462,7 +463,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
                 'message_max',
                 get_user_preferences('message_processor_max_lang', get_string('none'), $userid),
             ),
-            'attachments' => [$keyboard],
+            'attachments' => $keyboard,
         ];
         $response = $tg->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
         $response = $params;
@@ -934,10 +935,10 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         $text .= "\n📈 " . get_string('progress') . ': ' . round($percentage, 1) . "%";
 
         $tg->send_message($text, $userid);
-    } else if (strpos($data->callback_query->data, '/newevent') === 0 && $userid) {
+    } else if (strpos($data->callback->payload, '/newevent') === 0 && $userid) {
         preg_match(
             '/^\/newevent(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(.+))?$/u',
-            $data->callback_query->data,
+            $data->callback->payload,
             $matches
         );
 
@@ -1082,7 +1083,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
 
         $params['reply_markup'] = json_encode($keyboard);
         $params['message_id'] = $data->callback_query->message->message_id;
-        $response = $tg->send_api_command('editMessageText', $params);
+        $response = $tg->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 2);
     } else if (strpos($data->callback_query->data, '/message') === 0 && $userid) {
         preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback_query->data, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
