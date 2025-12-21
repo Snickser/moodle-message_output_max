@@ -419,6 +419,9 @@ class manager {
             $response = $this->curl->post($location, $payload, $options);
         } else if ($method == 2) {
             $response = $this->curl->delete($location, null, $options);
+        } else if ($method == 3) {
+            $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
+            $response = $this->curl->put($location, null, $options);
         } else {
             $response = $this->curl->get($location, $params, $options);
         }

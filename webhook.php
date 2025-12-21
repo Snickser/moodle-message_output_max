@@ -951,8 +951,6 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         $duration = isset($matches[5]) ? (int)$matches[5] : null;
         $name     = isset($matches[6]) ? trim($matches[6]) : null;
 
-        $keyboard = ['inline_keyboard' => []];
-        $params = ['chat_id' => $chatid];
 
         $hascourse = false;
         $hasgroup = false;
@@ -974,24 +972,27 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             }
 
             $buttons = [
-            [
+            [[
             'text' => get_string('personal'),
-            'callback_data' => '/newevent 0 0 0',
-            ],
-            [
+            'type' => 'callback',
+            'payload' => '/newevent 0 0 0',
+            ]],
+            [[
             'text' => get_string('course'),
-            'callback_data' => '/newevent 1',
-            ],
+            'type' => 'callback',
+            'payload' => '/newevent 1',
+            ]],
             ];
 
             if ($hasgroup) {
-                $buttons[] = [
+                $buttons[] = [[
                 'text' => get_string('group'),
-                'callback_data' => '/newevent 2',
-                ];
-                $keyboard['inline_keyboard'][] = $buttons;
+                'type' => 'callback',
+                'payload' => '/newevent 2',
+                ]];
+                $keyboard['payload']['buttons'] = $buttons;
             } else if ($hascourse) {
-                $keyboard['inline_keyboard'][] = $buttons;
+                $keyboard['payload']['buttons'] = $buttons;
             } else {
                 $step = 'get_time';
                 $params['text'] = '⏰ ' . get_string('enter', 'message_max') . ' ' .
@@ -1011,9 +1012,10 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             foreach ($courses as $course) {
                 $context = context_course::instance($course->id);
                 if (has_capability('moodle/calendar:manageentries', $context, $userid)) {
-                    $keyboard['inline_keyboard'][] = [[
+                    $keyboard['payload']['buttons'][] = [[
                     'text' => format_string($course->fullname),
-                    'callback_data' => "/newevent {$type} " . $course->id,
+                    'type' => 'callback',
+                    'payload' => "/newevent {$type} " . $course->id,
                     ]];
                 }
             }
@@ -1023,9 +1025,10 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $context = context_course::instance($courseid);
             $groups = groups_get_all_groups($courseid, $userid);
             foreach ($groups as $group) {
-                $keyboard['inline_keyboard'][] = [[
+                $keyboard['payload']['buttons'][] = [[
                 'text' => format_string($group->name . ($group->description ? " - {$group->description}" : null)),
-                'callback_data' => "/newevent 2 {$courseid} " . $group->id,
+                'type' => 'callback',
+                'payload' => "/newevent 2 {$courseid} " . $group->id,
                 ]];
             }
         } else if ($time === null) {
@@ -1081,9 +1084,12 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $step = "done";
         }
 
-        $params['reply_markup'] = json_encode($keyboard);
-        $params['message_id'] = $data->callback_query->message->message_id;
-        $response = $tg->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 2);
+        if (isset($keyboard)) {
+            $keyboard['type'] = 'inline_keyboard';
+            $params['attachments'] = [$keyboard];
+        }
+        $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
+        $response = $params;
     } else if (strpos($data->callback_query->data, '/message') === 0 && $userid) {
         preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback_query->data, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
