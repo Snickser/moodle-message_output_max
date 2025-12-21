@@ -490,7 +490,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             ]
         );
     } else if (strpos($text, '/certificates') === 0 && $userid) {
-        $certs = max_get_user_certificates($userid);
+        $certs = message_max_get_user_certificates($userid);
         $text = get_string('botcerts', 'message_max');
         $buff = '';
         foreach ($certs as $cert) {
@@ -502,21 +502,21 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $text .= $buff;
         }
         $keyboard = [
-            'inline_keyboard' => [[[
+            'type' => 'inline_keyboard',
+            'payload' => [ 'buttons' => [[[
             'text' => get_string('botcertdownload', 'message_max'),
-            'callback_data' => '/getcert',
-            ]]],
+            'payload' => '/getcert',
+            'type' => 'callback',
+            ]]]],
             ];
         $params = [
-            'chat_id' => $fromid,
             'text' => $text,
-            'parse_mode' => 'HTML',
-            'link_preview_options' => '{"is_disabled":true}',
+            'format' => 'HTML',
             ];
         if ($buff) {
-            $params['reply_markup'] = json_encode($keyboard);
+            $params['attachments'] = [$keyboard];
         }
-        $response = $tg->send_api_command('sendMessage', $params);
+        $response = $tg->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
     } else if (isset($data->message->successful_payment)) {
         http_response_code(200);
         echo "OK";
