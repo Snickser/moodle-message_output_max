@@ -352,19 +352,21 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         foreach ($courses as $course) {
             $buttons[] = [[
                 'text' => format_string($course->fullname),
-                'callback_data' => '/progress ' . $course->id,
+                'payload' => '/progress ' . $course->id,
+                'type' => 'callback',
             ]];
         }
         $keyboard = [
-        'inline_keyboard' => $buttons,
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => $buttons],
         ];
         $response = $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $chatid,
             [
-            'chat_id' => $fromid,
             'text' => '📊 ' . get_string('selectacourse'),
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'attachments' => [$keyboard],
+            ],
+            1,
         );
     } else if (strpos($text, '/students') === 0 && $userid && $config->sitebotenablereports) {
         $courses = enrol_get_users_courses($userid);
@@ -895,7 +897,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $page = '💁🏻 ' . get_string('none');
             $tg->send_message($page, $userid);
         }
-    } else if (strpos($data->callback_query->data, '/progress') === 0 && $userid) {
+    } else if (strpos($data->callback->payload, '/progress') === 0 && $userid) {
         $progress = [
         '⬜️',
         '🟩',
@@ -903,7 +905,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         '🟥',
         ];
 
-        $courseid = (int)substr($data->callback_query->data, 10);
+        $courseid = (int)substr($data->callback->payload, 10);
         require_once($CFG->libdir . '/completionlib.php');
 
         $course = get_course($courseid);
