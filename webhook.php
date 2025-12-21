@@ -972,27 +972,27 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             }
 
             $buttons = [
-            [[
+            [
             'text' => get_string('personal'),
             'type' => 'callback',
             'payload' => '/newevent 0 0 0',
-            ]],
-            [[
+            ],
+            [
             'text' => get_string('course'),
             'type' => 'callback',
             'payload' => '/newevent 1',
-            ]],
+            ],
             ];
 
             if ($hasgroup) {
-                $buttons[] = [[
+                $buttons[] = [
                 'text' => get_string('group'),
                 'type' => 'callback',
                 'payload' => '/newevent 2',
-                ]];
-                $keyboard['payload']['buttons'] = $buttons;
+                ];
+                $keyboard['payload']['buttons'] = [$buttons];
             } else if ($hascourse) {
-                $keyboard['payload']['buttons'] = $buttons;
+                $keyboard['payload']['buttons'] = [$buttons];
             } else {
                 $step = 'get_time';
                 $params['text'] = '⏰ ' . get_string('enter', 'message_max') . ' ' .
