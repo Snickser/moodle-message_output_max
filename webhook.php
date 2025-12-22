@@ -133,7 +133,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
     $username = clean_param($data->message->sender->name ?? null, PARAM_TEXT);
 
     $record = $DB->get_record('message_max', ['chatid' => $chatid]);
-    $lastmsgid = clean_param($data->message->sender->mid ?? null, PARAM_TEXT);
+    $lastmsgid = clean_param($data->message->body->mid ?? null, PARAM_TEXT);
     $lastdata = $text;
     $step = 'command';
 
@@ -523,65 +523,57 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         die;
     } else if ($text && $userid && $record->laststep == 'get_name') {
         $keyboard = [
-        'inline_keyboard' => [[
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => [[
         [
             'text' => '✅  ' . get_string('apply'),
-            'callback_data' => $record->lastdata . " {$text}",
+            'payload' => $record->lastdata . " {$text}",
+            'type' => 'callback',
         ],
         ]],
-        ];
+        ]];
         $response = $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $chatid,
             [
-            'chat_id' => $fromid,
             'text' => '🏷 ' . get_string('eventname', 'calendar') . ':' . PHP_EOL . $text,
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'attachments' => [$keyboard],
+            ],
+            1
         );
         if ($record->lastmsgid) {
-            $tg->send_api_command(
-                'deleteMessage',
-                [
-                'chat_id' => $fromid,
-                'message_id' => $record->lastmsgid,
-                ]
-            );
+            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_name';
-        $lastmsgid = $response->result->message_id;
+        $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
     } else if (isset($text) && $userid && $record->laststep == 'get_duration') {
         $timestamp = (int)$text;
 
         $keyboard = [
-        'inline_keyboard' => [[
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => [[
         [
             'text' => '✅  ' . get_string('apply'),
-            'callback_data' => $record->lastdata . " {$timestamp}",
+            'payload' => $record->lastdata . " {$timestamp}",
+            'type' => 'callback',
         ],
         ]],
-        ];
+        ]];
         $response = $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $chatid,
             [
-            'chat_id' => $fromid,
             'text' => '⏱️ ' . get_string('eventduration', 'calendar') . ' ' . $timestamp . ' ' . get_string("minutes"),
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'attachments' => [$keyboard],
+            ],
+            1
         );
         if ($record->lastmsgid) {
-            $tg->send_api_command(
-                'deleteMessage',
-                [
-                'chat_id' => $fromid,
-                'message_id' => $record->lastmsgid,
-                ]
-            );
+            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_duration';
-        $lastmsgid = $response->result->message_id;
+        $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
     } else if (isset($text) && $userid && $record->laststep == 'get_time') {
         $timestamp = strtotime($text);
@@ -590,34 +582,30 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         }
 
         $keyboard = [
-        'inline_keyboard' => [[
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => [[
         [
             'text' => '✅ ' . get_string('apply'),
-            'callback_data' => $record->lastdata . " {$timestamp}",
+            'payload' => $record->lastdata . " {$timestamp}",
+            'type' => 'callback',
         ],
         ]],
-        ];
+        ]];
         $response = $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $chatid,
             [
-            'chat_id' => $fromid,
             'text' => '⏰ ' . userdate($timestamp),
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'attachments' => [$keyboard],
+            ],
+            1
         );
 
         if ($record->lastmsgid) {
-            $tg->send_api_command(
-                'deleteMessage',
-                [
-                'chat_id' => $fromid,
-                'message_id' => $record->lastmsgid,
-                ]
-            );
+            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_time';
-        $lastmsgid = $response->result->message_id;
+        $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
     } else if ($text && $userid && $record->laststep == 'get_text') {
         $keyboard = [
@@ -644,27 +632,21 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         );
 
         if ($record->lastmsgid) {
-            $tg->send_api_command(
-                'deleteMessage',
-                [
-                'chat_id' => $fromid,
-                'message_id' => $record->lastmsgid,
-                ]
-            );
+            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_text';
-        $lastmsgid = $response->result->message_id;
+        $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
     } else if ($text && $userid) {
-        $response = max_send_menu($tg, $fromid, get_string('botidontknow', 'message_max'));
+        $response = message_max_send_menu($tg, $fromid, get_string('botidontknow', 'message_max'));
     } else if ($text) {
         $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $fromid,
             [
-            'chat_id' => $fromid,
             'text' => get_string('firstregister', 'message_max', $CFG->wwwroot),
-            ]
+            ],
+            1
         );
         http_response_code(200);
         echo "OK";
@@ -1090,8 +1072,8 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $keyboard['type'] = 'inline_keyboard';
             $params['attachments'] = [$keyboard];
         }
+	$tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
-        $response = $params;
     } else if (strpos($data->callback_query->data, '/message') === 0 && $userid) {
         preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback_query->data, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
@@ -1164,7 +1146,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             ) {
                 $certurl = $template->get_issue_file($issue);
                 $response = $tg->send_api_command('messages?user_id=' . $chatid, [
-                    'text' => get_string('botcertyour', 'message_max'),
+                    'text' => get_string('botcertyour', 'message_max') . "\n\n" . get_string('notincluded'),
                 ], 1);
             }
         } else {
@@ -1222,13 +1204,13 @@ if ($config->maxwebhookdump) {
     file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? print_r($response, true) : serialize($data)) .
     "\n\n", FILE_APPEND | LOCK_EX);
 }
-if ($fromid && isset($response->error_code)) {
+if ($fromid && isset($response->success)) {
      $tg->send_api_command(
-         'sendMessage',
+     'messages?user_id=' . $fromid,
          [
-            'chat_id' => $fromid,
-            'text' => serialize($response->description),
-         ]
+            'text' => serialize($response->message),
+         ],
+         1
      );
 }
 

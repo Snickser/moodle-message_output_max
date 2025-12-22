@@ -198,20 +198,11 @@ function message_max_notify_users(int $courseid, int $groupid, int $userid, $tex
  */
 function message_max_send_menu($tg, $chatid, $text) {
     $response = $tg->send_api_command(
-        'sendMessage',
+        'messages?user_id=' . $chatid,
         [
-        'chat_id' => $chatid,
         'text' => $text,
-        'reply_markup' => json_encode([
-        'keyboard' => [
-        ['/info', '/lang'],
-        ['/help'],
         ],
-        'resize_keyboard' => true,
-        'one_time_keyboard' => false,
-        'input_field_placeholder' => get_string('placeholdertypeorselect'),
-        ]),
-        ]
+        1
     );
     return $response;
 }
