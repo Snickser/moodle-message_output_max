@@ -334,18 +334,19 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $user = $DB->get_record('user', ['id' => $id]);
             $buttons[] = [[
                 'text' => fullname($user),
-                'callback_data' => '/userid ' . $id,
+                'payload' => '/userid ' . $id,
+                'type' => 'callback',
             ]];
         }
         $keyboard = [
-        'inline_keyboard' => $buttons,
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => $buttons],
         ];
         $params = [
-        'chat_id' => $fromid,
         'text' => get_string('botuserid', 'message_max', $userid),
-        'reply_markup' => json_encode($keyboard),
+        'attachments' => [$keyboard],
         ];
-        $response = $tg->send_api_command('sendMessage', $params);
+        $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
     } else if (strpos($text, '/progress') === 0 && $userid) {
         $courses = enrol_get_users_courses($userid);
         $buttons = [];
@@ -1168,17 +1169,17 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
                 1
             );
         }
-    } else if (strpos($data->callback_query->data, '/userid') === 0 && $id = substr($data->callback_query->data, 8)) {
+    } else if (strpos($data->callback->payload, '/userid') === 0 && $id = substr($data->callback->payload, 8)) {
         $userid = $userids[0];
         $uid = clean_param($id, PARAM_INT);
         if ($userid && $uid) {
             set_user_preference('message_processor_max_prefid', $uid, $userid);
             $response = $tg->send_api_command(
-                'sendMessage',
+                'messages?user_id=' . $fromid,
                 [
-                'chat_id' => $fromid,
                 'text' => '✅ ' . get_string('bulkselection', 'core', '🆔 ' . $uid),
-                ]
+                ],
+                1
             );
         }
     }
