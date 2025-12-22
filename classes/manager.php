@@ -113,8 +113,7 @@ class manager {
                 $fname .= uniqid(time(), true);
                 file_put_contents($fname, $chatid . "\n" . $message, FILE_APPEND | LOCK_EX);
             } else {
-                file_put_contents('/tmp/aaaaaa', $userid . "\n\n" , FILE_APPEND | LOCK_EX);
-                $this->set_customprofile_username($userid, $response->message->recipient->user_id);
+                $this->set_customprofile_username($userid, $response->message->sender->name);
             }
         }
 
