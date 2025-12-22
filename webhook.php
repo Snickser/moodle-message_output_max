@@ -1152,9 +1152,9 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         if ($notify) {
             max_notify_users($courseid, $groupid, $userid, $data->callback_query->message->text);
         }
-    } else if (strpos($data->callback_query->data, '/getcert') === 0 && $userid) {
-        $certs = max_get_user_certificates($userid);
-        if ($id = substr($data->callback_query->data, 9)) {
+    } else if (strpos($data->callback->payload, '/getcert') === 0 && $userid) {
+        $certs = message_max_get_user_certificates($userid);
+        if ($id = substr($data->callback->payload, 9)) {
             $issue = \tool_certificate\template::get_issue_from_code($id);
             $context = \context_course::instance($issue->courseid, IGNORE_MISSING) ?: null;
             $template = $issue ? \tool_certificate\template::instance($issue->templateid) : null;
@@ -1163,26 +1163,28 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
                 \tool_certificate\permission::can_view_issue($template, $issue, $context))
             ) {
                 $certurl = $template->get_issue_file($issue);
-                $response = $tg->send_api_command('sendDocument', [
-                    'chat_id' => $chatid,
-                    'document' => $certurl,
-                    'caption' => get_string('botcertyour', 'message_max'),
-                ]);
+                $response = $tg->send_api_command('messages?user_id=' . $chatid, [
+                    'text' => get_string('botcertyour', 'message_max'),
+                ], 1);
             }
         } else {
-            $keyboard = ['inline_keyboard' => []];
+            $keyboard = ['type' => 'inline_keyboard'];
             foreach ($certs as $cert) {
-                $keyboard['inline_keyboard'][] = [
-                ['text' => $cert['name'] . ' - ' . $cert['date'], 'callback_data' => '/getcert ' . $cert['code']],
+                $keyboard['payload']['buttons'][] = [
+                ['text' => $cert['name'] . ' - ' . $cert['date'], 'payload' => '/getcert ' . $cert['code'],
+                'type' => 'callback',
+                ],
                 ];
             }
 
-            $response = $tg->send_api_command('editMessageText', [
-            'chat_id' => $chatid,
-            'message_id' => $data->callback_query->message->message_id,
-            'text' => get_string('botcertselect', 'message_max'),
-            'reply_markup' => json_encode($keyboard),
-            ]);
+            $response = $tg->send_api_command(
+                'messages?user_id=' . $chatid,
+                [
+                'text' => get_string('botcertselect', 'message_max'),
+                'attachments' => [$keyboard],
+                ],
+                1
+            );
         }
     } else if (strpos($data->callback_query->data, '/userid') === 0 && $id = substr($data->callback_query->data, 8)) {
         $userid = $userids[0];
