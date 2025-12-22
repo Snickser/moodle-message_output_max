@@ -157,9 +157,9 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
 
     if ($chatid < 0) {
         if ($user) {
-            max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id);
+            message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id);
         } else {
-            max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id, "?start");
+            message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id, "?start");
         }
     }
 
@@ -375,19 +375,21 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         foreach ($courses as $course) {
             $buttons[] = [[
                 'text' => format_string($course->fullname),
-                'callback_data' => '/students ' . $course->id,
+                'payload' => '/students ' . $course->id,
+                'type' => 'callback',
             ]];
         }
         $keyboard = [
-        'inline_keyboard' => $buttons,
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => $buttons],
         ];
         $response = $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $chatid,
             [
-            'chat_id' => $fromid,
             'text' => '📚 ' . get_string('selectacourse') . ($buttons ? null : "\n\n" . get_string('none')),
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'attachments' => [$keyboard],
+            ],
+            1
         );
     } else if (strpos($text, '/enrols') === 0 && $userid) {
         $courses = enrol_get_users_courses($userid);
@@ -476,19 +478,21 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         foreach ($courses as $course) {
             $buttons[] = [[
                 'text' => format_string($course->fullname),
-                'callback_data' => '/message ' . $course->id,
+                'payload' => '/message ' . $course->id,
+                'type' => 'callback',
             ]];
         }
         $keyboard = [
-        'inline_keyboard' => $buttons,
+            'type' => 'inline_keyboard',
+            'payload' => ['buttons' => $buttons],
         ];
         $response = $tg->send_api_command(
-            'sendMessage',
+    	    'messages?user_id=' . $fromid,
             [
-            'chat_id' => $fromid,
             'text' => '📚 ' . get_string('selectacourse'),
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'attachments' => [$keyboard],
+            ],
+            1
         );
     } else if (strpos($text, '/certificates') === 0 && $userid) {
         $certs = message_max_get_user_certificates($userid);
@@ -610,28 +614,29 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         $lastdata = $record->lastdata;
     } else if ($text && $userid && $record->laststep == 'get_text') {
         $keyboard = [
-        'inline_keyboard' => [[
-        [
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => [
+        [[
             'text' => '✉️ ' . get_string('submit'),
-            'callback_data' => $record->lastdata . ' 1',
+            'payload' => $record->lastdata . ' 1',
+            'type' => 'callback',
         ],
         [
             'text' => '❌ ' . get_string('cancel'),
-            'callback_data' => $record->lastdata . ' 0',
-        ],
+            'payload' => $record->lastdata . ' 0',
+            'type' => 'callback',
         ]],
-        ];
+        ],
+        ]];
         $response = $tg->send_api_command(
-            'sendMessage',
+            'messages?user_id=' . $fromid,
             [
-            'chat_id' => $fromid,
             'text' => $text,
-            'parse_mode' => 'HTML',
-            'link_preview_options' => '{"is_disabled":true}',
-            'reply_markup' => json_encode($keyboard),
-            ]
+            'format' => 'HTML',
+            'attachments' => [$keyboard],
+            ],
+            1
         );
-
         if ($record->lastmsgid) {
             $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
@@ -728,8 +733,8 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $user->lang = $lang;
             user_update_user($user, false, true);
         }
-    } else if (strpos($data->callback_query->data, '/students') === 0 && $userid && $config->sitebotenablereports) {
-        preg_match('/^\/students(?: (\d+))?(?: (-?\d+))?(?: (\d+))?/', $data->callback_query->data, $matches);
+    } else if (strpos($data->callback->payload, '/students') === 0 && $userid && $config->sitebotenablereports) {
+        preg_match('/^\/students(?: (\d+))?(?: (-?\d+))?(?: (\d+))?/', $data->callback->payload, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
         $groupid  = isset($matches[2]) ? (int)$matches[2] : null;
         $accept   = isset($matches[3]) ? (int)$matches[3] : null;
@@ -739,13 +744,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         }
 
         if ($courseid) {
-            $tg->send_api_command(
-                'deleteMessage',
-                [
-                'chat_id' => $fromid,
-                'message_id' => $data->callback_query->message->message_id,
-                ]
-            );
+            $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
         }
 
         $page = '🎓 ' . get_string('students') . PHP_EOL . PHP_EOL;
@@ -802,7 +801,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
 
                     $text .= ' ' . fullname($student, true);
                     if ($config->sitebotusernamefield && $student->profile[$config->sitebotusernamefield]) {
-                        $text .= ' @' . $student->profile[$config->sitebotusernamefield];
+                        $text .= ' [' . $student->profile[$config->sitebotusernamefield] . ']';
                     }
 
                     foreach (explode(',', $config->sitebotreportfields) as $field) {
@@ -827,53 +826,60 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             } else if (!$groupid && $courseid) {
                 $step = 'getgroup';
                 $groups = groups_get_all_groups($courseid, $userid);
+                $keyboard = ['type' => 'inline_keyboard'];
                 foreach ($groups as $group) {
-                        $keyboard['inline_keyboard'][] = [[
+                        $keyboard['payload']['buttons'][] = [[
                         'text' => format_string($group->name . ($group->description ? " - {$group->description}" : null)),
-                        'callback_data' => "/students {$courseid} {$group->id}",
+                        'payload' => "/students {$courseid} {$group->id}",
+                        'type' => 'callback',
                         ]];
                 }
                 if (has_capability('moodle/site:accessallgroups', $context, $userid)) {
-                    $keyboard['inline_keyboard'][] = [[
+                    $keyboard['payload']['buttons'][] = [[
                     'text' => '✖️ ' . get_string('groupsnone'),
-                    'callback_data' => "/students {$courseid} -1",
+                    'payload' => "/students {$courseid} -1",
+                    'type' => 'callback',
                     ]];
-                    $keyboard['inline_keyboard'][] = [[
+                    $keyboard['payload']['buttons'][] = [[
                     'text' => '✳️ ' . get_string('allparticipants'),
-                    'callback_data' => "/students {$courseid} 0",
+                    'payload' => "/students {$courseid} 0",
+                    'type' => 'callback',
                     ]];
                 }
                 $response = $tg->send_api_command(
-                    'sendMessage',
+                    'messages?user_id=' . $fromid,
                     [
-                    'chat_id' => $fromid,
                     'text' => '📖 ' . get_string('selectagroup'),
-                    'reply_markup' => json_encode($keyboard),
-                    ]
+                    'attachments' => [$keyboard],
+                    ],
+                    1
                 );
             } else if ($accept === 0) {
                 $step = 'cancel';
             } else {
                 $step = 'accept';
-                $keyboard = [
-                'inline_keyboard' => [[
+                $keyboard = ['type' => 'inline_keyboard'];
+                $keyboard['payload'] = [
+                'buttons' => [[
                 [
                 'text' => '⚠️ ' . get_string('policyaccept'),
-                'callback_data' => "/students {$courseid} {$groupid} 1",
+                'payload' => "/students {$courseid} {$groupid} 1",
+                'type' => 'callback',
                 ],
                 [
                 'text' => '❌ ' . get_string('cancel'),
-                'callback_data' => "/students {$courseid} {$groupid} 0",
+                'payload' => "/students {$courseid} {$groupid} 0",
+                'type' => 'callback',
                 ],
                 ]],
                 ];
                 $response = $tg->send_api_command(
-                    'sendMessage',
+                    'messages?user_id=' . $fromid,
                     [
-                    'chat_id' => $fromid,
                     'text' => '⁉️ ' . format_string(get_string('reportenabler_desc1', 'message_max')),
-                    'reply_markup' => json_encode($keyboard),
-                    ]
+                    'attachments' => [$keyboard],
+                    ],
+                    1
                 );
             }
         } else {
@@ -1073,21 +1079,19 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             $keyboard['type'] = 'inline_keyboard';
             $params['attachments'] = [$keyboard];
         }
-	$tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
+        $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
         $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
-    } else if (strpos($data->callback_query->data, '/message') === 0 && $userid) {
-        preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback_query->data, $matches);
+    } else if (strpos($data->callback->payload, '/message') === 0 && $userid) {
+        preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback->payload, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
         $groupid  = isset($matches[2]) ? (int)$matches[2] : null;
         $submit   = isset($matches[3]) ? (int)$matches[3] : null;
 
-        $keyboard = ['inline_keyboard' => []];
+        $keyboard = ['type' => 'inline_keyboard'];
 
         $notify = false;
 
-        $params = [
-            'chat_id' => $chatid,
-        ];
+        $params = [];
 
         if ($submit === 0) {
             $step = 'cancel';
@@ -1112,28 +1116,30 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             }
             if ($hasrole) {
                 foreach ($groups as $group) {
-                    $keyboard['inline_keyboard'][] = [[
+                    $keyboard['payload']['buttons'][] = [[
                     'text' => format_string($group->name . ($group->description ? " - {$group->description}" : null)),
-                    'callback_data' => "/message {$courseid} {$group->id}",
+                    'payload' => "/message {$courseid} {$group->id}",
+                    'type' => 'callback',
                     ]];
                 }
                 if (!$groups) {
-                    $keyboard['inline_keyboard'][] = [[
+                    $keyboard['payload']['buttons'][] = [[
                     'text' => get_string('botmsgall', 'message_max'),
-                    'callback_data' => "/message {$courseid} 0",
+                    'payload' => "/message {$courseid} 0",
+                    'type' => 'callback',
                     ]];
                 }
                 $params['text'] = '📖 ' . get_string('selectagroup');
-                $params['reply_markup'] = json_encode($keyboard);
+                $params['attachments'] = [$keyboard];
             } else {
                 $params['text'] = '💁🏻 ' . get_string('none');
             }
         }
 
-        $params['message_id'] = $data->callback_query->message->message_id;
-        $response = $tg->send_api_command('editMessageText', $params);
+        $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+        $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
         if ($notify) {
-            max_notify_users($courseid, $groupid, $userid, $data->callback_query->message->text);
+            message_max_notify_users($courseid, $groupid, $userid, $data->message->body->text);
         }
     } else if (strpos($data->callback->payload, '/getcert') === 0 && $userid) {
         $certs = message_max_get_user_certificates($userid);
@@ -1207,7 +1213,7 @@ if ($config->maxwebhookdump) {
 }
 if ($fromid && isset($response->success)) {
      $tg->send_api_command(
-     'messages?user_id=' . $fromid,
+         'messages?user_id=' . $fromid,
          [
             'text' => serialize($response->message),
          ],

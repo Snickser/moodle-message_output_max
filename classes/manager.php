@@ -104,7 +104,7 @@ class manager {
                 ],
                 1,
             );
-            if (!isset($response->message->body)) {
+            if (!isset($response->message->recipient->user_id)) {
                 $fname = $CFG->tempdir . '/max/';
                 // Check if spool dir not exist.
                 if (!is_dir($fname)) {
@@ -113,7 +113,8 @@ class manager {
                 $fname .= uniqid(time(), true);
                 file_put_contents($fname, $chatid . "\n" . $message, FILE_APPEND | LOCK_EX);
             } else {
-                $this->set_customprofile_username($userid, $response->result->chat->username);
+                file_put_contents('/tmp/aaaaaa', $userid . "\n\n" , FILE_APPEND | LOCK_EX);
+                $this->set_customprofile_username($userid, $response->message->recipient->user_id);
             }
         }
 

@@ -100,14 +100,12 @@ function message_max_private_answer($tg, $botname, $chatid, $messageid, $start =
     ];
 
     $options = [
-        'chat_id' => $chatid,
         'text' => $text,
-        'reply_to_message_id' => $messageid,
-        'reply_markup' => json_encode($replymarkup),
     ];
     return $tg->send_api_command(
-        'sendMessage',
-        $options
+        'messages?user_id=' . $chatid,
+        $options,
+        1
     );
 }
 
