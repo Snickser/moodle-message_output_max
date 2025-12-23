@@ -24,7 +24,6 @@
 
 define('NO_MOODLE_COOKIES', true);
 define('NO_DEBUG_DISPLAY', true);
-define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php'); // @codingStandardsIgnoreLine
 
@@ -61,9 +60,23 @@ $tg = new message_max\manager();
 $user = null;
 $userid = null;
 
-if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) {
-    $userid = $data->user_id;
-    $newuser = $tg->set_webhook_chatid($userid, $data->payload, $data->user->name);
+if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) || $data->update_type == 'bot_started') {
+    $fromid = $data->user_id ?? null;
+
+    $userids = $tg->get_userids_by_chatid($fromid);
+    if ($userids) {
+        if (count($userids) > 1) {
+            $userid = get_user_preferences('message_processor_max_prefid', $userids[0], $userids[0]);
+        } else {
+            $userid = $userids[0];
+        }
+        if ($user = $DB->get_record('user', ['id' => $userid])) {
+            // \core\session\manager::set_user($user);
+            // profile_load_data($user);
+        }
+    }
+
+    $newuser = $tg->set_webhook_chatid($fromid, $data->payload, $data->user->name);
 
     if (empty($user->{$config->sitebotphonefield}) && ($user || $newuser)) {
         $attachments = [
@@ -121,7 +134,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
     }
 
     $response = $tg->send_api_command(
-        'messages?user_id=' . $userid . '&disable_link_preview=true',
+        'messages?user_id=' . $fromid . '&disable_link_preview=true',
         [
          'text' => $text,
          'format' => 'html',
@@ -129,7 +142,6 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         ],
         1
     );
-    $response = $attachments;
 } else if (isset($data->message) && !isset($data->callback)) {
     $fromid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $chatid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
@@ -167,7 +179,14 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
         }
     }
 
-    if ($userid && isset($data->message->body->attachments[0]->payload->vcf_info)) {
+    if (strpos($text, '/start') === 0) {
+        if ($user) {
+            $text = get_string('welcometosite', 'moodle', ['firstname' => fullname($user)]);
+        } else {
+            $text = get_string('welcometosite', 'moodle', ['firstname' => $data->message->from->first_name]);
+        }
+        $response = $tg->send_message($text, $userid);
+    } else if ($userid && isset($data->message->body->attachments[0]->payload->vcf_info)) {
         if ($data->message->body->attachments[0]->payload->max_info->user_id == $fromid) {
             $vcf = $data->message->body->attachments[0]->payload->vcf_info;
             $line = preg_replace("/\r\n[ \t]/", '', $vcf);
@@ -491,7 +510,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) 
             'payload' => ['buttons' => $buttons],
         ];
         $response = $tg->send_api_command(
-    	    'messages?user_id=' . $fromid,
+            'messages?user_id=' . $fromid,
             [
             'text' => '📚 ' . get_string('selectacourse'),
             'attachments' => [$keyboard],
