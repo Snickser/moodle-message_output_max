@@ -1174,10 +1174,49 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
                 $template && (\tool_certificate\permission::can_verify() ||
                 \tool_certificate\permission::can_view_issue($template, $issue, $context))
             ) {
-                $certurl = $template->get_issue_file($issue);
-                $response = $tg->send_api_command('messages?user_id=' . $chatid, [
-                    'text' => get_string('botcertyour', 'message_max') . "\n\n" . get_string('notincluded'),
-                ], 1);
+                $certfile = $template->get_issue_file($issue);
+                $upload = $tg->send_api_command('uploads?type=file', null, 1);
+                if (isset($upload->url)) {
+                    $tmpdir = make_request_directory();
+                    $tmpfile = $tmpdir . '/' . $certfile->get_filename();
+                    $certfile->copy_content_to($tmpfile);
+                    $cfile = curl_file_create($tmpfile, $certfile->get_mimetype(), $certfile->get_filename());
+
+                    $curl = new \curl();
+                    $token = $curl->post($upload->url, ['data' => $cfile]);
+                    $token = json_decode($token, false);
+
+                    if (isset($token->token)) {
+                        $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+                    }
+
+                    $response = new stdClass();
+                    $response->code = 'attachment.not.ready';
+
+                    $i = 0;
+                    $wait = null;
+                    while ($response->code == 'attachment.not.ready') {
+                        $i++;
+                        $response = $tg->send_api_command('messages?user_id=' . $chatid, [
+                            'text' => get_string('botcertyour', 'message_max'),
+                            'attachments' => [['type' => 'file', 'payload' => ['token' => $token->token]]],
+                        ], 1);
+
+                        if ($i == 1 && $response->code == 'attachment.not.ready') {
+                            $wait = $tg->send_api_command('messages?user_id=' . $chatid, [
+                            'text' => get_string('wait', 'message_max'),
+                            ], 1);
+                        }
+
+                        if ($i > 6 || $response->code != 'attachment.not.ready') {
+                            break;
+                        }
+                        sleep(5);
+                    }
+                    if (isset($wait->message->body->mid)) {
+                        $tg->send_api_command('messages?message_id=' . $wait->message->body->mid, null, 2);
+                    }
+                }
             }
         } else {
             $keyboard = ['type' => 'inline_keyboard'];

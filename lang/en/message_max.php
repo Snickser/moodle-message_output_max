@@ -136,5 +136,6 @@ $string['tgext'] = 'Path to external sender';
 $string['usernamefield'] = 'Username save field';
 $string['usernamefield_desc'] = 'Default short name for extended user profile field is "max_username".';
 
+$string['wait'] = '🕑 Please wait, the file is loading...';
 $string['warnreport_desc'] = 'Display warning before print report.';
 $string['welcome'] = '✅ Your account has been successfully linked!';
