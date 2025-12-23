@@ -1102,7 +1102,9 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
             $keyboard['type'] = 'inline_keyboard';
             $params['attachments'] = [$keyboard];
         }
-        $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+        if (isset($type)) {
+            $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+        }
         $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
     } else if (strpos($data->callback->payload, '/message') === 0 && $userid) {
         preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback->payload, $matches);
