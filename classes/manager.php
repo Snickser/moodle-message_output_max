@@ -112,8 +112,6 @@ class manager {
                 }
                 $fname .= uniqid(time(), true);
                 file_put_contents($fname, $chatid . "\n" . $message, FILE_APPEND | LOCK_EX);
-//            } else {
-//                $this->set_customprofile_username($userid, $response->message->sender->name);
             }
         }
 

@@ -44,7 +44,7 @@ $data = json_decode($update, false);
 $config = get_config('message_max');
 
 if ($config->maxwebhookdump) {
-    file_put_contents($CFG->tempdir . '/max.log', print_r($data, true) . "\n\n", FILE_APPEND | LOCK_EX);
+    file_put_contents($CFG->tempdir . '/max.log', serialize($data) . "\n\n", FILE_APPEND | LOCK_EX);
 }
 
 if (!isset($headers['X-Max-Bot-Api-Secret']) || $headers['X-Max-Bot-Api-Secret'] != $config->sitebotsecret) {
@@ -786,6 +786,9 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
                 $step = 'done';
                 $num = 1;
                 $students = get_enrolled_users($context, false, $groupid, '*');
+                if (!$students) {
+                    $page .= get_string('no');
+                }
                 foreach ($students as $student) {
                     $page .= $num++ . '. ';
                     profile_load_custom_fields($student);
@@ -864,7 +867,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
                     'type' => 'callback',
                     ]];
                     $keyboard['payload']['buttons'][] = [[
-                    'text' => '✳️ ' . get_string('allparticipants'),
+                    'text' => '✴️ ' . get_string('allparticipants'),
                     'payload' => "/students {$courseid} 0",
                     'type' => 'callback',
                     ]];
@@ -1272,7 +1275,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
 }
 
 if ($config->maxwebhookdump) {
-    file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? print_r($response, true) : serialize($data)) .
+    file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? serialize($response) : serialize($data)) .
     "\n\n", FILE_APPEND | LOCK_EX);
 }
 if ($fromid && isset($response->success)) {
