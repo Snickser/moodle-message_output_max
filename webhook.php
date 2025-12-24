@@ -70,10 +70,6 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         } else {
             $userid = $userids[0];
         }
-        if ($user = $DB->get_record('user', ['id' => $userid])) {
-            // \core\session\manager::set_user($user);
-            // profile_load_data($user);
-        }
     }
 
     $newuser = $tg->set_webhook_chatid($fromid, $data->payload, $data->user->name);
