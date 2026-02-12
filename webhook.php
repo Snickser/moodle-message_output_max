@@ -1199,7 +1199,8 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
                     while ($response->code == 'attachment.not.ready') {
                         $i++;
                         $response = $tg->send_api_command('messages?user_id=' . $chatid, [
-                            'text' => get_string('botcertyour', 'message_max'),
+                            'text' => $template->get_name() . "\n\n" .
+                            get_string('botcertyour', 'message_max'),
                             'attachments' => [['type' => 'file', 'payload' => ['token' => $token->token]]],
                         ], 1);
 

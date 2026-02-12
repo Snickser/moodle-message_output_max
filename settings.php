@@ -115,7 +115,7 @@ if ($ADMIN->fulltree) {
     $url = new moodle_url('/message/output/max/maxconnect.php', ['sesskey' => sesskey(), 'action' => 'setwebhook']);
     $link = html_writer::tag(
         'a',
-        get_string('setwebhook', 'message_max'),
+        get_config('message_max', 'webhook') ? get_string('unsetwebhook', 'message_max') : get_string('setwebhook', 'message_max'),
         ['href' => $url, 'class' => 'btn btn-danger']
     );
 

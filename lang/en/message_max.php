@@ -133,6 +133,7 @@ $string['sitebottokennotsetup'] = 'Bot token for site must be specified in plugi
 $string['sitebotusername'] = 'Bot username for site';
 $string['striptags'] = 'Strip tags';
 $string['tgext'] = 'Path to external sender';
+$string['unsetwebhook'] = 'Unset MAX webhook';
 $string['usernamefield'] = 'Username save field';
 $string['usernamefield_desc'] = 'Default short name for extended user profile field is "max_username".';
 
