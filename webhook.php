@@ -1275,7 +1275,7 @@ if ($config->maxwebhookdump) {
     file_put_contents($CFG->tempdir . '/max.log', (!empty($response) ? serialize($response) : serialize($data)) .
     "\n\n", FILE_APPEND | LOCK_EX);
 }
-if ($fromid && isset($response->success)) {
+if (isset($fromid) && isset($response->success)) {
      $tg->send_api_command(
          'messages?user_id=' . $fromid,
          [

@@ -295,7 +295,7 @@ class manager {
             return false;
         } else {
             $results = $this->get_updates();
-            if ($results !== false) {
+            if (isset($results->updates)) {
                 foreach ($results->updates as $object) {
                     if (isset($object->user)) {
                         if ($this->usersecret_match($object->payload)) {
@@ -377,6 +377,9 @@ class manager {
      * @return object The JSON decoded results object.
      */
     public function get_updates() {
+        if ($this->config('webhook')) {
+            return true;
+        }
         $response = $this->send_api_command('updates');
         if ($response) {
             return $response;
@@ -488,22 +491,16 @@ class manager {
                 if ($this->usersecret_match($key, $userid)) {
                     set_user_preference('message_processor_max_chatid', $chatid, $userid);
                     $this->set_customprofile_username($userid, $username);
-                    $this->send_api_command(
-                        'sendMessage',
-                        [
-                        'chat_id' => $chatid,
-                        'text' => get_string('welcome', 'message_max'),
-                        'reply_markup' => json_encode([
-                        'keyboard' => [
-                        ['/info', '/lang'],
-                        ['/help'],
-                        ],
-                        'resize_keyboard' => true,
-                        'one_time_keyboard' => false,
-                        ]),
-                        ]
-                    );
                     $this->send_message('Use /help', $userid);
+                    if ($this->config('sitebotaddtogroup')) {
+                        $response = $this->send_api_command(
+                            'chats/' . $this->config('sitebotaddtogroup') . '/members',
+                            [
+                            'user_ids' => [$chatid],
+                            ],
+                            1
+                        );
+                    }
                     return true;
                 }
             }
