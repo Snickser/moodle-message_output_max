@@ -67,6 +67,7 @@ $string['configmaxlog'] = 'Write debug info into {$a}/max.log file.';
 $string['configmaxlogdump'] = 'For debugging purposes, write the message to a log file.';
 $string['configmaxwebhook'] = 'This MAX webhook is for testing purposes, do not enable it, otherwise push button twice!';
 $string['configparsemode'] = 'Formatting options: Text or HTML.';
+$string['configsitebotaddtogroup'] = 'Automatically add a new user to the group with the specified ID. First, add the chatbot to the desired group with administrator rights.';
 $string['configsitebotmsgroles'] = 'Who is allowed to send mass messages to course groups and use reports.';
 $string['configsitebotname'] = 'This will be filled in automatically when you save the bot token.';
 $string['configsitebotpay'] = 'Bot payment token for accepting payments.';
@@ -124,6 +125,7 @@ $string['setupinstructions'] = 'Create a new MAX Bot using MasterBot. Click the 
 Use the "/newbot" command in MAX to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
 unique bot username, for example "{$a->username}".';
 $string['setwebhook'] = 'Setup MAX webhook';
+$string['sitebotaddtogroup'] = 'Add new user to this group';
 $string['sitebotname'] = 'Bot name for site';
 $string['sitebotpay'] = 'Payment token';
 $string['sitebotpaycosts'] = 'Predefined amounts';

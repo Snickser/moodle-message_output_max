@@ -106,6 +106,25 @@ if ($ADMIN->fulltree) {
         $options
     ));
 
+    $options = [
+        '' => get_string('no'),
+    ];
+
+    $chats = $maxmanager->send_api_command('chats');
+    foreach ($chats->chats as $key => $value) {
+        if ($value->status == 'active') {
+            $options[$value->chat_id] = $value->title;
+        }
+    }
+
+    $settings->add(new admin_setting_configselect(
+        'message_max/sitebotaddtogroup',
+        get_string('sitebotaddtogroup', 'message_max'),
+        get_string('configsitebotaddtogroup', 'message_max'),
+        null,
+        $options
+    ));
+
     $settings->add(new admin_setting_heading(
         'message_max_webhook',
         get_string('maxwebhook', 'message_max'),
