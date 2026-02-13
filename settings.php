@@ -115,8 +115,7 @@ if ($ADMIN->fulltree) {
             $options[$value->chat_id] = $value->title;
         }
     }
-
-    $settings->add(new admin_setting_configselect(
+    $settings->add(new admin_setting_configmultiselect(
         'message_max/sitebotaddtogroup',
         get_string('sitebotaddtogroup', 'message_max'),
         get_string('configsitebotaddtogroup', 'message_max'),
