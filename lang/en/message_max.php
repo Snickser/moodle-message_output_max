@@ -67,7 +67,7 @@ $string['configmaxlog'] = 'Write debug info into {$a}/max.log file.';
 $string['configmaxlogdump'] = 'For debugging purposes, write the message to a log file.';
 $string['configmaxwebhook'] = 'This MAX webhook is for testing purposes, do not enable it, otherwise push button twice!';
 $string['configparsemode'] = 'Formatting options: Text or HTML.';
-$string['configsitebotaddtogroup'] = 'Automatically add a new user to the group with the specified ID. First, add the chatbot to the desired group with administrator rights.';
+$string['configsitebotaddtogroup'] = 'Automatically add a new user to the group/channel with the specified ID. First, add this chatbot to the desired group/channel with administrator rights.';
 $string['configsitebotmsgroles'] = 'Who is allowed to send mass messages to course groups and use reports.';
 $string['configsitebotname'] = 'This will be filled in automatically when you save the bot token.';
 $string['configsitebotpay'] = 'Bot payment token for accepting payments.';
@@ -84,7 +84,6 @@ Once completed, come back to this page and click "Save changes". Full documentat
 $string['connectme'] = 'Connect my account to MAX';
 $string['connectmemenu'] = 'Connect my account to MAX';
 $string['customfield'] = 'If there is an additional user profile field "max_username", it will be filled in automatically.';
-
 $string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})</br>
 You can find new versions of the plugin at <a href=https://github.com/Snickser/moodle-message_output_max>GitHub.com</a>
 <img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_max.svg"><br>
@@ -99,6 +98,8 @@ $string['enter_phone'] = 'For better interaction with curators, please provide y
 $string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';
 $string['firstregister'] = 'First, register on the site ';
 $string['fullmessagehtml'] = 'Use fullmessagehtml';
+$string['groupinvite'] = '⚠️ Please join our news channel to stay up to date with news and events.';
+
 $string['maxbottoken'] = 'MAX bot token';
 $string['maxchatid'] = 'MAX chat id';
 $string['maxlog'] = 'Enable logging';
@@ -125,7 +126,7 @@ $string['setupinstructions'] = 'Create a new MAX Bot using MasterBot. Click the 
 Use the "/newbot" command in MAX to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
 unique bot username, for example "{$a->username}".';
 $string['setwebhook'] = 'Setup MAX webhook';
-$string['sitebotaddtogroup'] = 'Add new user to this group';
+$string['sitebotaddtogroup'] = 'Invite new user to news channel or group';
 $string['sitebotname'] = 'Bot name for site';
 $string['sitebotpay'] = 'Payment token';
 $string['sitebotpaycosts'] = 'Predefined amounts';

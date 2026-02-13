@@ -500,6 +500,9 @@ class manager {
                             ],
                             1
                         );
+                        if ($response->success !== true) {
+                            $this->send_message(get_string('groupinvite', 'message_max'), $userid);
+                        }
                     }
                     return true;
                 }

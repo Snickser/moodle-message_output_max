@@ -107,9 +107,8 @@ if ($ADMIN->fulltree) {
     ));
 
     $options = [
-        '' => get_string('no'),
+        '' => get_string('disable'),
     ];
-
     $chats = $maxmanager->send_api_command('chats');
     foreach ($chats->chats as $key => $value) {
         if ($value->status == 'active') {
