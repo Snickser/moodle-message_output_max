@@ -302,6 +302,25 @@ class manager {
                             set_user_preference('message_processor_max_chatid', $object->user->user_id, $userid);
                             $this->set_customprofile_username($userid, $object->user->name);
                             $this->send_message(get_string('welcome', 'message_max'), $userid);
+                            if ($this->config('sitebotaddtogroup')) {
+                                $response = $this->send_api_command(
+                                    'chats/' . $this->config('sitebotaddtogroup') . '/members',
+                                    [
+                                    'user_ids' => [$object->user->user_id],
+                                    ],
+                                    1
+                                );
+                                if ($response->success !== true) {
+                                    $response = $this->send_api_command('chats/' . $this->config('sitebotaddtogroup'));
+                                    if (isset($response->link) && isset($response->title)) {
+                                        $a = (object)[
+                                            'link' => $response->link,
+                                            'title' => $response->title,
+                                        ];
+                                        $this->send_message(get_string('groupinvite', 'message_max', $a), $userid);
+                                    }
+                                }
+                            }
                             break;
                         }
                     }
