@@ -501,7 +501,14 @@ class manager {
                             1
                         );
                         if ($response->success !== true) {
-                            $this->send_message(get_string('groupinvite', 'message_max'), $userid);
+                            $response = $this->send_api_command('chats/' . $this->config('sitebotaddtogroup'));
+                            if (isset($response->link) && isset($response->title)) {
+                                $a = (object)[
+                                    'link' => $response->link,
+                                    'title' => $response->title,
+                                ];
+                                $this->send_message(get_string('groupinvite', 'message_max', $a), $userid);
+                            }
                         }
                     }
                     return true;

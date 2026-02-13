@@ -98,7 +98,7 @@ $string['enter_phone'] = 'For better interaction with curators, please provide y
 $string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';
 $string['firstregister'] = 'First, register on the site ';
 $string['fullmessagehtml'] = 'Use fullmessagehtml';
-$string['groupinvite'] = '⚠️ Please join our news channel to stay up to date with news and events.';
+$string['groupinvite'] = '⚠️ Please join our news channel to stay up to date with news and events 👉 <a href="{$a->link}">{$a->title}</a>';
 
 $string['maxbottoken'] = 'MAX bot token';
 $string['maxchatid'] = 'MAX chat id';

@@ -261,7 +261,7 @@ if ($ADMIN->fulltree) {
         'message_max/parsemode',
         get_string('parsemode', 'message_max'),
         get_string('configparsemode', 'message_max'),
-        '',
+        'HTML',
         $options
     ));
 
