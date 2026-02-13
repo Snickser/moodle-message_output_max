@@ -8,5 +8,6 @@ This plugin provides Moodle messaging provider for MAX.
 - Delayed sending function (queue) when the rate-limit is reached
 - Automatic disabling of the user's subscription when the user blocks the bot.
 - If there is an additional custom profile field "max_username", it will be filled in automatically.
+- Auto invite to groups.
 - Webhook mode (experimental!!)
 - BotMode functional (info, courses list, events, etc.).
