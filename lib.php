@@ -25,6 +25,43 @@
 /**
  * Adds navigation items to user profile.
  *
+ * @param core_user\output\myprofile\tree $tree The myprofile tree object
+ * @param stdClass $user The user object
+ * @param bool $iscurrentuser Whether the user is the current user
+ * @param stdClass $course The course object
+ */
+function message_max_myprofile_navigation(core_user\output\myprofile\tree $tree, $user, $iscurrentuser, $course) {
+    global $USER;
+
+    if ($USER->id !== $user->id) {
+        return;
+    }
+
+    $manager = new \message_max\manager();
+    $chatid = $manager->is_chatid_set($USER->id);
+
+    if ($chatid) {
+        $msg = get_string('alreadyconnected', 'message_max');
+    } else {
+        $msg = get_string('connectmemenu', 'message_max');
+    }
+
+    $url = new moodle_url('/message/notificationpreferences.php');
+    $category = new core_user\output\myprofile\category('max', get_string('pluginname', 'message_max'), null);
+    $node = new core_user\output\myprofile\node(
+        'max',
+        'message_max',
+        $msg,
+        null,
+        $url
+    );
+    $tree->add_category($category);
+    $tree->add_node($node);
+}
+
+/**
+ * Adds navigation items to user profile.
+ *
  * @param stdClass $navigation
  * @param stdClass $user The user object
  * @param stdClass $context
