@@ -107,7 +107,7 @@ if ($ADMIN->fulltree) {
     ));
 
     $options = [
-        '' => get_string('disable'),
+        '' => get_string('no'),
     ];
     $chats = $maxmanager->send_api_command('chats');
     foreach ($chats->chats as $key => $value) {
@@ -119,7 +119,7 @@ if ($ADMIN->fulltree) {
         'message_max/sitebotaddtogroup',
         get_string('sitebotaddtogroup', 'message_max'),
         get_string('configsitebotaddtogroup', 'message_max'),
-        null,
+        [''],
         $options
     ));
 
