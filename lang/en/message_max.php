@@ -99,6 +99,7 @@ $string['enter_time'] = 'The date and time are specified in mnemonic or one of t
 $string['firstregister'] = 'First, register on the site ';
 $string['fullmessagehtml'] = 'Use fullmessagehtml';
 $string['groupinvite'] = '⚠️ Please join our news channel to stay up to date with news and events 👉 <a href="{$a->link}">{$a->title}</a>';
+$string['groupinvitedone'] = 'You have been added to our news channel <a href="{$a->link}">{$a->title}</a>';
 
 $string['maxbottoken'] = 'MAX bot token';
 $string['maxchatid'] = 'MAX chat id';

@@ -302,28 +302,7 @@ class manager {
                             set_user_preference('message_processor_max_chatid', $object->user->user_id, $userid);
                             $this->set_customprofile_username($userid, $object->user->name);
                             $this->send_message(get_string('welcome', 'message_max'), $userid);
-                            foreach (explode(",", $this->config('sitebotaddtogroup')) as $ch) {
-                                $ch = trim($ch);
-                                if ($ch !== '') {
-                                    $response = $this->send_api_command(
-                                        'chats/' . $ch . '/members',
-                                        [
-                                        'user_ids' => [$object->user->user_id],
-                                        ],
-                                        1
-                                    );
-                                    if ($response->success !== true) {
-                                        $response = $this->send_api_command('chats/' . $ch);
-                                        if (isset($response->link) && isset($response->title)) {
-                                            $a = (object)[
-                                                'link' => $response->link,
-                                                'title' => $response->title,
-                                            ];
-                                            $this->send_message(get_string('groupinvite', 'message_max', $a), $userid);
-                                        }
-                                    }
-                                }
-                            }
+                            $this->groupinvite($object->user->user_id, explode(",", $this->config('sitebotaddtogroup')), $userid);
                             break;
                         }
                     }
@@ -514,33 +493,11 @@ class manager {
                     set_user_preference('message_processor_max_chatid', $chatid, $userid);
                     $this->set_customprofile_username($userid, $username);
                     $this->send_message('Use /help', $userid);
-                    foreach (explode(",", $this->config('sitebotaddtogroup')) as $ch) {
-                        $ch = trim($ch);
-                        if ($ch !== '') {
-                            $response = $this->send_api_command(
-                                'chats/' . $ch . '/members',
-                                [
-                                'user_ids' => [$chatid],
-                                ],
-                                1
-                            );
-                            if ($response->success !== true) {
-                                $response = $this->send_api_command('chats/' . $ch);
-                                if (isset($response->link) && isset($response->title)) {
-                                    $a = (object)[
-                                        'link' => $response->link,
-                                        'title' => $response->title,
-                                    ];
-                                    $this->send_message(get_string('groupinvite', 'message_max', $a), $userid);
-                                }
-                            }
-                        }
-                    }
-                    return true;
+                    $this->groupinvite($chatid, explode(",", $this->config('sitebotaddtogroup')), $userid);
+                    return $userid;
                 }
             }
         }
-
         return false;
     }
 
@@ -567,5 +524,46 @@ class manager {
         }
 
         return $userids;
+    }
+
+    /**
+     * Get userid by chatid.
+     * @param  string $chatid
+     * @param  array  $chats
+     * @param  string $userid
+     * @return boolean|string Success
+     */
+    public function groupinvite($chatid, $chats, $userid) {
+        foreach ($chats as $ch) {
+            $ch = trim($ch);
+            if ($ch !== '') {
+                $response = $this->send_api_command('chats/' . $ch);
+                if (isset($response->link) && isset($response->title)) {
+                    $a = (object)[
+                    'link' => $response->link,
+                    'title' => $response->title,
+                    ];
+                } else {
+                    $a = (object)[
+                    'link' => '',
+                    'title' => '',
+                    ];
+                }
+
+                $response = $this->send_api_command(
+                    'chats/' . $ch . '/members',
+                    [
+                    'user_ids' => [$chatid],
+                    ],
+                    1
+                );
+                if ($response->success !== true) {
+                    $this->send_message(get_string('groupinvite', 'message_max', $a), $userid);
+                } else {
+                    $this->send_message(get_string('groupinvitedone', 'message_max', $a), $userid);
+                }
+            }
+        }
+        return true;
     }
 }

@@ -63,18 +63,14 @@ $userid = null;
 if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) || $data->update_type == 'bot_started') {
     $fromid = $data->user_id ?? null;
 
-    $userids = $tg->get_userids_by_chatid($fromid);
-    if ($userids) {
-        if (count($userids) > 1) {
-            $userid = get_user_preferences('message_processor_max_prefid', $userids[0], $userids[0]);
-        } else {
-            $userid = $userids[0];
+    $newuser = $tg->set_webhook_chatid($fromid, $data->payload, $data->user->name);
+    if ($newuser) {
+        if ($user = $DB->get_record('user', ['id' => $newuser])) {
+            profile_load_data($user);
         }
     }
 
-    $newuser = $tg->set_webhook_chatid($fromid, $data->payload, $data->user->name);
-
-    if (empty($user->{$config->sitebotphonefield}) && ($user || $newuser)) {
+    if (empty($user->{$config->sitebotphonefield})) {
         $attachments = [
         [
         'type' => 'inline_keyboard',
@@ -190,7 +186,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
 
             if ($phone && ($config->sitebotphonefield == 'phone1' || $config->sitebotphonefield == 'phone2')) {
                 $DB->set_field('user', $config->sitebotphonefield, $phone, ['id' => $userid]);
-                $tg->send_message(get_string('thanks') . ' 🙂', $userid);
+                $tg->send_message(get_string('thanks') . '! 🙂', $userid);
             } else if ($phone && $config->sitebotphonefield) {
                 $shortname = preg_replace('/^profile_field_/', '', $config->sitebotphonefield);
                 if ($shortname) {
@@ -212,7 +208,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
                         ];
                         $DB->insert_record('user_info_data', $record);
                     }
-                    $tg->send_message(get_string('thanks') . ' 🙂', $userid);
+                    $tg->send_message(get_string('thanks') . '! 🙂', $userid);
                 }
             }
         } else {
