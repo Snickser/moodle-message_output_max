@@ -37,6 +37,11 @@ function message_max_myprofile_navigation(core_user\output\myprofile\tree $tree,
         return;
     }
 
+    $botname = get_config('message_max', 'sitebotname');
+    if (empty($botname)) {
+        return;
+    }
+
     $manager = new \message_max\manager();
     $chatid = $manager->is_chatid_set($USER->id);
 
