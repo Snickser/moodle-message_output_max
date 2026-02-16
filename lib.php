@@ -41,7 +41,7 @@ function message_max_myprofile_navigation(core_user\output\myprofile\tree $tree,
     $chatid = $manager->is_chatid_set($USER->id);
 
     if ($chatid) {
-        $msg = get_string('alreadyconnected', 'message_max');
+        return;
     } else {
         $msg = get_string('connectmemenu', 'message_max');
     }
