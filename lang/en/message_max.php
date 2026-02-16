@@ -81,7 +81,7 @@ $string['connectinstructions'] = 'Once you have clicked the link below, you will
 your MAX account. In MAX, click the "Start" button in the "{$a}" chat that opens to connect your account to Moodle.
 Once completed, come back to this page and click "Save changes". Full documentation
 <a href="https://docs.moodle.org/33/en/MAX_message_processor#Configuring_user_preferences" target="_blank">here</a>.';
-$string['connectme'] = 'Connect my account to MAX';
+$string['connectme'] = '<br><p style="color: blue;"><font size=+1><b>👉 Connect my account to MAX 👈</b></font></p>';
 $string['connectmemenu'] = 'Connect my account to MAX';
 $string['customfield'] = 'If there is an additional user profile field "max_username", it will be filled in automatically.';
 $string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})</br>
