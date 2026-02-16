@@ -96,7 +96,7 @@ width="330" height="50" frameborder="0" allowtransparency="true" scrolling="no">
 $string['enter'] = 'Enter';
 $string['enter_phone'] = 'For better interaction with curators, please provide your mobile phone number.';
 $string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';
-$string['firstregister'] = 'First, register on the site ';
+$string['firstregister'] = 'First, register on the website and enable notifications via MAX. {$a}';
 $string['fullmessagehtml'] = 'Use fullmessagehtml';
 $string['groupinvite'] = '⚠️ Please join our news channel to stay up to date with news and events 👉 <a href="{$a->link}">{$a->title}</a>';
 $string['groupinvitedone'] = 'You have been added to our news channel <a href="{$a->link}">{$a->title}</a>';
