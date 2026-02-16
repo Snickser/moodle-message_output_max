@@ -492,6 +492,7 @@ class manager {
                 if ($this->usersecret_match($key, $userid)) {
                     set_user_preference('message_processor_max_chatid', $chatid, $userid);
                     $this->set_customprofile_username($userid, $username);
+                    $this->send_message(get_string('welcome', 'message_telegram'), $userid);
                     $this->send_message('Use /help', $userid);
                     $this->groupinvite($chatid, explode(",", $this->config('sitebotaddtogroup')), $userid);
                     return $userid;
@@ -542,11 +543,13 @@ class manager {
                     $a = (object)[
                     'link' => $response->link,
                     'title' => $response->title,
+                    'desc' => $response->description ?? '',
                     ];
                 } else {
                     $a = (object)[
                     'link' => '',
                     'title' => '',
+                    'desc' => '',
                     ];
                 }
 
