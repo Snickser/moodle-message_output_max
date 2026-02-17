@@ -62,15 +62,16 @@ $userid = null;
 
 if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) || $data->update_type == 'bot_started') {
     $fromid = $data->user_id ?? null;
+    $payload = $data->payload ?? null;
 
-    $newuser = $tg->set_webhook_chatid($fromid, $data->payload, $data->user->name);
+    $newuser = $tg->set_webhook_chatid($fromid, $payload, $data->user->name);
     if ($newuser) {
         if ($user = $DB->get_record('user', ['id' => $newuser])) {
             profile_load_data($user);
         }
     }
 
-    if (empty($user->{$config->sitebotphonefield})) {
+    if (empty($user->{$config->sitebotphonefield}) && $newuser) {
         $attachments = [
         [
         'type' => 'inline_keyboard',
@@ -86,7 +87,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         ],
         ],
         ];
-        if ($user) {
+        if (isset($user)) {
             $text = get_string('welcometosite', 'moodle', ['firstname' => fullname($user)]);
         } else {
             $text = get_string('welcometosite', 'moodle', ['firstname' => $data->user->first_name]);
@@ -118,7 +119,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         ],
         ],
         ];
-        if ($user) {
+        if (isset($user)) {
             $text = get_string('welcomeback', 'moodle', ['firstname' => fullname($user)]);
         } else {
             $text = get_string('welcometosite', 'moodle', ['firstname' => $data->user->first_name]);
