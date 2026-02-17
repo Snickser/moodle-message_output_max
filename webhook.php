@@ -187,7 +187,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
 
             if ($phone && ($config->sitebotphonefield == 'phone1' || $config->sitebotphonefield == 'phone2')) {
                 $DB->set_field('user', $config->sitebotphonefield, $phone, ['id' => $userid]);
-                $tg->send_message(get_string('thanks') . '! 🙂', $userid);
+                $tg->send_message(get_string('thanks') . '! 🙏', $userid);
             } else if ($phone && $config->sitebotphonefield) {
                 $shortname = preg_replace('/^profile_field_/', '', $config->sitebotphonefield);
                 if ($shortname) {
@@ -209,7 +209,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
                         ];
                         $DB->insert_record('user_info_data', $record);
                     }
-                    $tg->send_message(get_string('thanks') . '! 🙂', $userid);
+                    $tg->send_message(get_string('thanks') . '! 🙏', $userid);
                 }
             }
         } else {
