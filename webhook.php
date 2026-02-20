@@ -168,7 +168,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         if ($user) {
             message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id);
         } else {
-            message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id, "?start");
+            message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id, "?start=0");
         }
     }
 
