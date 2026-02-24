@@ -18,7 +18,7 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     message_max
- * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -65,7 +65,7 @@ if (!isset($headers['X-Max-Bot-Api-Secret']) || $headers['X-Max-Bot-Api-Secret']
 
 $langs = get_string_manager()->get_list_of_translations();
 
-$tg = new message_max\manager();
+$mx = new message_max\manager();
 
 $user = null;
 $userid = null;
@@ -81,7 +81,7 @@ if (
     $username = clean_param($data->user->name ?? null, PARAM_TEXT);
     $firstname = clean_param($data->user->first_name ?? null, PARAM_TEXT);
 
-    $newuser = $tg->set_webhook_chatid($fromid, $payload, $username);
+    $newuser = $mx->set_webhook_chatid($fromid, $payload, $username);
     if ($newuser) {
         if ($user = $DB->get_record('user', ['id' => $newuser])) {
             profile_load_data($user);
@@ -143,7 +143,7 @@ if (
         }
     }
 
-    $response = $tg->send_api_command(
+    $response = $mx->send_api_command(
         'messages?user_id=' . $fromid . '&disable_link_preview=true',
         [
          'text' => $text,
@@ -169,7 +169,7 @@ if (
     $step = 'command';
 
     // Find Moodle user(s) linked to this chat ID.
-    $userids = $tg->get_userids_by_chatid($fromid);
+    $userids = $mx->get_userids_by_chatid($fromid);
     if ($userids) {
         if (count($userids) > 1) {
             $userid = get_user_preferences('message_processor_max_prefid', $userids[0], $userids[0]);
@@ -189,9 +189,9 @@ if (
 
     if ($chatid < 0) {
         if ($user) {
-            message_max_private_answer($tg, $config->sitebotusername, $chatid, $messageid);
+            message_max_private_answer($mx, $config->sitebotusername, $chatid, $messageid);
         } else {
-            message_max_private_answer($tg, $config->sitebotusername, $chatid, $messageid, "?start=0");
+            message_max_private_answer($mx, $config->sitebotusername, $chatid, $messageid, "?start=0");
         }
     }
 
@@ -201,7 +201,7 @@ if (
         } else {
             $text = get_string('welcometosite', 'moodle', ['firstname' => $firstname]);
         }
-        $response = $tg->send_message($text, $userid);
+        $response = $mx->send_message($text, $userid);
     } else if ($userid && isset($data->message->body->attachments[0]->payload->vcf_info)) {
         // Process vCard contact attachment - extract phone number.
         if ($data->message->body->attachments[0]->payload->max_info->user_id == $fromid) {
@@ -211,7 +211,7 @@ if (
 
             if ($phone && ($config->sitebotphonefield == 'phone1' || $config->sitebotphonefield == 'phone2')) {
                 $DB->set_field('user', $config->sitebotphonefield, $phone, ['id' => $userid]);
-                $tg->send_message(get_string('thanks') . '! 🙏', $userid);
+                $mx->send_message(get_string('thanks') . '! 🙏', $userid);
             } else if ($phone && $config->sitebotphonefield) {
                 $shortname = preg_replace('/^profile_field_/', '', $config->sitebotphonefield);
                 if ($shortname) {
@@ -233,11 +233,11 @@ if (
                         ];
                         $DB->insert_record('user_info_data', $record);
                     }
-                    $tg->send_message(get_string('thanks') . '! 🙏', $userid);
+                    $mx->send_message(get_string('thanks') . '! 🙏', $userid);
                 }
             }
         } else {
-            $tg->send_message('😕 ' . get_string('unknownuser'), $fromid);
+            $mx->send_message('😕 ' . get_string('unknownuser'), $fromid);
         }
     } else if (strpos($text, '/pay') === 0 && $config->sitebotpay) {
         if (!$cost = (int)substr($text, 5)) {
@@ -257,11 +257,11 @@ if (
             'text' => get_string('botpay', 'message_max', $config->sitebotpaycurrency),
             'reply_markup' => json_encode($keyboard),
             ];
-            $response = $tg->send_api_command('sendMessage', $params);
+            $response = $mx->send_api_command('sendMessage', $params);
         } else {
             $fromid = clean_param($data->message->from->id, PARAM_INT);
             $cost = $cost * 100;
-            $response = $tg->send_api_command('sendInvoice', [
+            $response = $mx->send_api_command('sendInvoice', [
             "chat_id" => $fromid,
             "title" => get_string('botpaytitle', 'message_max'),
             "description" => get_string('botpaydesc', 'message_max'),
@@ -298,12 +298,12 @@ if (
                 if (mb_strlen($list) + mb_strlen($buff) < 3980) {
                     $list .= $buff;
                 } else {
-                    $tg->send_message($list, $userid);
+                    $mx->send_message($list, $userid);
                     $list = $buff;
                 }
             }
         }
-        $tg->send_message($list, $userid);
+        $mx->send_message($list, $userid);
     } else if (strpos($text, '/help') === 0 && $userid) {
         $text = null;
         if ($userid) {
@@ -351,7 +351,7 @@ if (
             $text .= "\n/pay - " . get_string('botpaytitle', 'message_max');
         }
 
-        $tg->send_message($text, $userid);
+        $mx->send_message($text, $userid);
     } else if (strpos($text, '/info') === 0) {
         $params = [
             'text' => '<b>' . format_string($SITE->fullname) . '</b>' . "\n🌐 " . $CFG->wwwroot . "\n✉️ " . $CFG->supportemail .
@@ -359,7 +359,7 @@ if (
             ($CFG->servicespage ? "\n⭐ " . $CFG->servicespage : ''),
             'format' => 'HTML',
             ];
-            $response = $tg->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
+            $response = $mx->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
     } else if (strpos($text, '/faq') === 0) {
         $params = [
             'text' => get_string('botfaq', 'message_max') .
@@ -367,7 +367,7 @@ if (
             format_string(get_string('botfaqtext', 'message_max'), true),
             'format' => 'HTML',
             ];
-            $response = $tg->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
+            $response = $mx->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
     } else if (strpos($text, '/userid') === 0 && $userid) {
         $buttons = [];
         foreach ($userids as $id) {
@@ -386,7 +386,7 @@ if (
         'text' => get_string('botuserid', 'message_max', $userid),
         'attachments' => [$keyboard],
         ];
-        $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
+        $response = $mx->send_api_command('messages?user_id=' . $fromid, $params, 1);
     } else if (strpos($text, '/progress') === 0 && $userid) {
         $courses = enrol_get_users_courses($userid);
         $buttons = [];
@@ -401,7 +401,7 @@ if (
         'type' => 'inline_keyboard',
         'payload' => ['buttons' => $buttons],
         ];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $chatid,
             [
             'text' => '📊 ' . get_string('selectacourse'),
@@ -423,7 +423,7 @@ if (
         'type' => 'inline_keyboard',
         'payload' => ['buttons' => $buttons],
         ];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $chatid,
             [
             'text' => '📚 ' . get_string('selectacourse') . ($buttons ? null : "\n\n" . get_string('none')),
@@ -445,7 +445,7 @@ if (
         if (!$courses) {
             $text = PHP_EOL . get_string('no') . PHP_EOL;
         }
-        $tg->send_message(get_string('botenrols', 'message_max') . PHP_EOL . $text, $userid);
+        $mx->send_message(get_string('botenrols', 'message_max') . PHP_EOL . $text, $userid);
     } else if (strpos($text, '/events') === 0 && $userid) {
         $eventtype = ['user' => '📌', 'group' => '🔔', 'course' => '🎓'];
         $calendar = \calendar_information::create(time(), 0, 0);
@@ -478,7 +478,7 @@ if (
                 ],
             ],
         ]];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $chatid . '&disable_link_preview=true',
             [
             'text' => $text,
@@ -510,7 +510,7 @@ if (
             ),
             'attachments' => $keyboard,
         ];
-        $response = $tg->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
+        $response = $mx->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
         $response = $params;
     } else if (strpos($text, '/message') === 0 && $userid) {
         $courses = enrol_get_all_users_courses($userid, false, '*');
@@ -526,7 +526,7 @@ if (
             'type' => 'inline_keyboard',
             'payload' => ['buttons' => $buttons],
         ];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $fromid,
             [
             'text' => '📚 ' . get_string('selectacourse'),
@@ -561,7 +561,7 @@ if (
         if ($buff) {
             $params['attachments'] = [$keyboard];
         }
-        $response = $tg->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
+        $response = $mx->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
     } else if (isset($data->message->successful_payment)) {
         http_response_code(200);
         echo "OK";
@@ -577,7 +577,7 @@ if (
         ],
         ]],
         ]];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $chatid,
             [
             'text' => '🏷 ' . get_string('eventname', 'calendar') . ':' . PHP_EOL . $text,
@@ -586,7 +586,7 @@ if (
             1
         );
         if ($record->lastmsgid) {
-            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
+            $mx->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_name';
@@ -605,7 +605,7 @@ if (
         ],
         ]],
         ]];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $chatid,
             [
             'text' => '⏱️ ' . get_string('eventduration', 'calendar') . ' ' . $timestamp . ' ' . get_string("minutes"),
@@ -614,7 +614,7 @@ if (
             1
         );
         if ($record->lastmsgid) {
-            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
+            $mx->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_duration';
@@ -636,7 +636,7 @@ if (
         ],
         ]],
         ]];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $chatid,
             [
             'text' => '⏰ ' . userdate($timestamp),
@@ -646,7 +646,7 @@ if (
         );
 
         if ($record->lastmsgid) {
-            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
+            $mx->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_time';
@@ -668,7 +668,7 @@ if (
         ]],
         ],
         ]];
-        $response = $tg->send_api_command(
+        $response = $mx->send_api_command(
             'messages?user_id=' . $fromid,
             [
             'text' => $text,
@@ -678,16 +678,16 @@ if (
             1
         );
         if ($record->lastmsgid) {
-            $tg->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
+            $mx->send_api_command('messages?message_id=' . $record->lastmsgid, null, 2);
         }
 
         $step = 'get_text';
         $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
     } else if ($text && $userid) {
-        $response = message_max_send_menu($tg, $fromid, get_string('botidontknow', 'message_max'));
+        $response = message_max_send_menu($mx, $fromid, get_string('botidontknow', 'message_max'));
     } else if ($text) {
-        $tg->send_api_command(
+        $mx->send_api_command(
             'messages?user_id=' . $fromid,
             [
             'text' => get_string('firstregister', 'message_max', $CFG->wwwroot),
@@ -727,7 +727,7 @@ if (
     $step = 'callback';
 
     // Find Moodle user(s) linked to this chat ID.
-    $userids = $tg->get_userids_by_chatid($fromid);
+    $userids = $mx->get_userids_by_chatid($fromid);
     if ($userids) {
         if (count($userids) > 1) {
             $userid = get_user_preferences('message_processor_max_prefid', $userids[0], $userids[0]);
@@ -752,7 +752,7 @@ if (
         }
         if ($userid) {
             set_user_preference('message_processor_max_lang', $lang, $userid);
-            $tg->send_message(($languages[$lang]['flag'] ?? 'Ⓜ️'), $userid);
+            $mx->send_message(($languages[$lang]['flag'] ?? 'Ⓜ️'), $userid);
             $user = new stdClass();
             $user->id = $userid;
             $user->lang = $lang;
@@ -771,7 +771,7 @@ if (
         }
 
         if ($courseid) {
-            $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+            $mx->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
         }
 
         $page = '🎓 ' . get_string('students') . PHP_EOL . PHP_EOL;
@@ -848,11 +848,11 @@ if (
                         $page .= $text;
                     } else {
                         $page .= '...';
-                        $tg->send_message($page, $userid);
+                        $mx->send_message($page, $userid);
                         $page = $text;
                     }
                 }
-                $tg->send_message($page, $userid);
+                $mx->send_message($page, $userid);
             } else if (!$groupid && $courseid) {
                 $step = 'getgroup';
                 $groups = groups_get_all_groups($courseid, $userid);
@@ -876,7 +876,7 @@ if (
                     'type' => 'callback',
                     ]];
                 }
-                $response = $tg->send_api_command(
+                $response = $mx->send_api_command(
                     'messages?user_id=' . $fromid,
                     [
                     'text' => '📖 ' . get_string('selectagroup'),
@@ -903,7 +903,7 @@ if (
                 ],
                 ]],
                 ];
-                $response = $tg->send_api_command(
+                $response = $mx->send_api_command(
                     'messages?user_id=' . $fromid,
                     [
                     'text' => '⁉️ ' . format_string(get_string('reportenabler_desc1', 'message_max')),
@@ -914,7 +914,7 @@ if (
             }
         } else {
             $page = '💁🏻 ' . get_string('none');
-            $tg->send_message($page, $userid);
+            $mx->send_message($page, $userid);
         }
     } else if (strpos($data->callback->payload, '/progress') === 0 && $userid) {
         $progress = [
@@ -955,7 +955,7 @@ if (
         $percentage = $total ? round(($completed / $total) * 100, 1) : 0;
         $text .= "\n📈 " . get_string('progress') . ': ' . round($percentage, 1) . "%";
 
-        $tg->send_message($text, $userid);
+        $mx->send_message($text, $userid);
     } else if (strpos($data->callback->payload, '/newevent') === 0 && $userid) {
         preg_match(
             '/^\/newevent(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(\d+))?(?:\s+(.+))?$/u',
@@ -1111,9 +1111,9 @@ if (
             $params['attachments'] = [$keyboard];
         }
         if (isset($type)) {
-            $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+            $mx->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
         }
-        $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
+        $response = $mx->send_api_command('messages?user_id=' . $fromid, $params, 1);
     } else if (strpos($data->callback->payload, '/message') === 0 && $userid) {
         preg_match('/^\/message(?: (\d+))?(?: (\d+))?(?: (\d+))?/', $data->callback->payload, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
@@ -1169,8 +1169,8 @@ if (
             }
         }
 
-        $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
-        $response = $tg->send_api_command('messages?user_id=' . $fromid, $params, 1);
+        $mx->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+        $response = $mx->send_api_command('messages?user_id=' . $fromid, $params, 1);
         if ($notify) {
             message_max_notify_users($courseid, $groupid, $userid, $data->message->body->text);
         }
@@ -1185,7 +1185,7 @@ if (
                 \tool_certificate\permission::can_view_issue($template, $issue, $context))
             ) {
                 $certfile = $template->get_issue_file($issue);
-                $upload = $tg->send_api_command('uploads?type=file', null, 1);
+                $upload = $mx->send_api_command('uploads?type=file', null, 1);
                 if (isset($upload->url)) {
                     $tmpdir = make_request_directory();
                     $tmpfile = $tmpdir . '/' . $certfile->get_filename();
@@ -1197,7 +1197,7 @@ if (
                     $token = json_decode($token, false);
 
                     if (isset($token->token)) {
-                        $tg->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
+                        $mx->send_api_command('messages?message_id=' . $data->message->body->mid, null, 2);
                     }
 
                     $response = new stdClass();
@@ -1207,14 +1207,14 @@ if (
                     $wait = null;
                     while ($response->code == 'attachment.not.ready') {
                         $i++;
-                        $response = $tg->send_api_command('messages?user_id=' . $chatid, [
+                        $response = $mx->send_api_command('messages?user_id=' . $chatid, [
                             'text' => $template->get_name() . "\n\n" .
                             get_string('botcertyour', 'message_max'),
                             'attachments' => [['type' => 'file', 'payload' => ['token' => $token->token]]],
                         ], 1);
 
                         if ($i == 1 && $response->code == 'attachment.not.ready') {
-                            $wait = $tg->send_api_command('messages?user_id=' . $chatid, [
+                            $wait = $mx->send_api_command('messages?user_id=' . $chatid, [
                             'text' => get_string('wait', 'message_max'),
                             ], 1);
                         }
@@ -1225,7 +1225,7 @@ if (
                         sleep(5);
                     }
                     if (isset($wait->message->body->mid)) {
-                        $tg->send_api_command('messages?message_id=' . $wait->message->body->mid, null, 2);
+                        $mx->send_api_command('messages?message_id=' . $wait->message->body->mid, null, 2);
                     }
                 }
             }
@@ -1239,7 +1239,7 @@ if (
                 ];
             }
 
-            $response = $tg->send_api_command(
+            $response = $mx->send_api_command(
                 'messages?user_id=' . $chatid,
                 [
                 'text' => get_string('botcertselect', 'message_max'),
@@ -1253,7 +1253,7 @@ if (
         $uid = clean_param($id, PARAM_INT);
         if ($userid && $uid) {
             set_user_preference('message_processor_max_prefid', $uid, $userid);
-            $response = $tg->send_api_command(
+            $response = $mx->send_api_command(
                 'messages?user_id=' . $fromid,
                 [
                 'text' => '✅ ' . get_string('bulkselection', 'core', '🆔 ' . $uid),
@@ -1285,7 +1285,7 @@ if ($config->maxwebhookdump) {
     "\n\n", FILE_APPEND | LOCK_EX);
 }
 if (isset($fromid) && isset($response->success)) {
-     $tg->send_api_command(
+     $mx->send_api_command(
          'messages?user_id=' . $fromid,
          [
             'text' => serialize($response->message),

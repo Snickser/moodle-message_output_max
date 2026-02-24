@@ -388,7 +388,7 @@ class manager {
             ], 1);
             if (!empty($response) && isset($response->success) && ($response->success == true)) {
                 $this->set_config('webhook', '1');
-                $message = 'Webhook is set successfully';
+                $message = get_string('setwebhooksuccess', 'message_max');
             } else if (!empty($response) && isset($response->message) && isset($response->message)) {
                 $message = $response->message;
             }
@@ -407,7 +407,7 @@ class manager {
         $response = $this->send_api_command('subscriptions?url=' . $url->out(), null, 2);
         if (!empty($response) && isset($response->success) && ($response->success == true)) {
             $this->set_config('webhook', '0');
-            $message = 'Webhook removed';
+            $message = get_string('unsetwebhooksuccess', 'message_max');
         } else if (!empty($response) && isset($response->success) && isset($response->message)) {
             $message = $response->message;
         }

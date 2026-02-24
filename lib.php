@@ -130,7 +130,7 @@ function message_max_extend_navigation_user_settings($navigation, $user, $contex
  *
  * @return mixed MAX API response from send_api_command.
  */
-function message_max_private_answer($tg, $botname, $chatid, $messageid, $start = null) {
+function message_max_private_answer($mx, $botname, $chatid, $messageid, $start = null) {
     // Select message text based on whether user is starting fresh or continuing.
     if ($start) {
         $text = get_string('botanswer1', 'message_max');
@@ -144,7 +144,7 @@ function message_max_private_answer($tg, $botname, $chatid, $messageid, $start =
             [
                 [
                     'text' => get_string('proceed'),
-                    'url' => "https://t.me/$botname$start",
+                    'url' => 'https://t.me/' . $botname . $start,
                 ],
             ],
         ],
@@ -153,7 +153,7 @@ function message_max_private_answer($tg, $botname, $chatid, $messageid, $start =
     $options = [
         'text' => $text,
     ];
-    return $tg->send_api_command(
+    return $mx->send_api_command(
         'messages?user_id=' . $chatid,
         $options,
         1
@@ -248,13 +248,13 @@ function message_max_notify_users(int $courseid, int $groupid, int $userid, $tex
 /**
  * Sends a simple text message via MAX API.
  *
- * @param object $tg     MAX API client instance with send_api_command method.
+ * @param object $mx     MAX API client instance with send_api_command method.
  * @param int    $chatid Chat ID to send the message to.
  * @param string $text   Message text to send.
  * @return mixed MAX API response.
  */
-function message_max_send_menu($tg, $chatid, $text) {
-    $response = $tg->send_api_command(
+function message_max_send_menu($mx, $chatid, $text) {
+    $response = $mx->send_api_command(
         'messages?user_id=' . $chatid,
         [
         'text' => $text,

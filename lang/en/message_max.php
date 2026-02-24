@@ -127,6 +127,7 @@ $string['setupinstructions'] = 'Create a new MAX Bot using MasterBot. Click the 
 Use the "/newbot" command in MAX to start creating the bot. You will need to specify a botname, for example "{$a->name}", and a
 unique bot username, for example "{$a->username}".';
 $string['setwebhook'] = 'Setup MAX webhook';
+$string['setwebhooksuccess'] = 'Webhook is set successfully';
 $string['sitebotaddtogroup'] = 'Invite new user to news channel or group';
 $string['sitebotname'] = 'Bot name for site';
 $string['sitebotpay'] = 'Payment token';
@@ -138,6 +139,7 @@ $string['sitebotusername'] = 'Bot username for site';
 $string['striptags'] = 'Strip tags';
 $string['tgext'] = 'Path to external sender';
 $string['unsetwebhook'] = 'Unset MAX webhook';
+$string['unsetwebhooksuccess'] = 'Webhook removed';
 $string['usernamefield'] = 'Username save field';
 $string['usernamefield_desc'] = 'Default short name for extended user profile field is "max_username".';
 
