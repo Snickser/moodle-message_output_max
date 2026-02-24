@@ -152,38 +152,6 @@ if ($ADMIN->fulltree) {
         PARAM_TEXT
     ));
 
-    $settings->add(new admin_setting_configtext(
-        'message_max/sitebotpay',
-        get_string('sitebotpay', 'message_max'),
-        get_string('configsitebotpay', 'message_max'),
-        null,
-        PARAM_TEXT
-    ));
-
-    $settings->add(new admin_setting_configtext(
-        'message_max/sitebotpaycosts',
-        get_string('sitebotpaycosts', 'message_max'),
-        get_string('configsitebotpaycosts', 'message_max'),
-        '800,1600,5000',
-        PARAM_TEXT
-    ));
-
-    $currencies = [
-    'RUB' => get_string('RUB', 'currencies'),
-    'BYR' => get_string('BYR', 'currencies'),
-    'KZT' => get_string('KZT', 'currencies'),
-    'USD' => get_string('USD', 'currencies'),
-    'EUR' => get_string('EUR', 'currencies'),
-    'UAH' => get_string('UAH', 'currencies'),
-    ];
-    $settings->add(new admin_setting_configselect(
-        'message_max/sitebotpaycurrency',
-        get_string('currency'),
-        null,
-        'RUB',
-        $currencies
-    ));
-
     $context = context_user::instance($USER->id);
     $roles = get_default_enrol_roles($context);
     $settings->add(new admin_setting_configmultiselect(

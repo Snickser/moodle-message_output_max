@@ -725,26 +725,7 @@ if (
         }
     }
 
-    if (strpos($data->callback->payload, '/pay') === 0 && $cost = substr($data->callback->payload, 5)) {
-        $fromid = clean_param($data->callback_query->from->id, PARAM_INT);
-        $cost = $cost * 100;
-        $response = $tg->send_api_command('sendInvoice', [
-        "chat_id" => $fromid,
-        "title" => get_string('botpaytitle', 'message_max'),
-        "description" => get_string('botpaydesc', 'message_max'),
-        "payload" => "Donate",
-        "provider_token" => $config->sitebotpay,
-        "currency" => $config->sitebotpaycurrency,
-        "start_parameter" => "test",
-        "prices" => json_encode([
-        [
-            "label"  => get_string('botpaydesc', 'message_max'),
-            "amount" => $cost,
-        ],
-           ]),
-
-        ]);
-    } else if (strpos($data->callback->payload, '/lang') === 0 && $lang = substr($data->callback->payload, 6)) {
+    if (strpos($data->callback->payload, '/lang') === 0 && $lang = substr($data->callback->payload, 6)) {
         $languages = [
         'ru' => ['flag' => '🇷🇺'],
         'en' => ['flag' => '🇺🇸'],
