@@ -41,6 +41,13 @@ $headers = getallheaders();
 $update = file_get_contents("php://input");
 $data = json_decode($update, false);
 
+// Validate JSON parsing.
+if (json_last_error() !== JSON_ERROR_NONE || !is_object($data)) {
+    http_response_code(400);
+    echo "Invalid JSON";
+    die;
+}
+
 $config = get_config('message_max');
 
 if ($config->maxwebhookdump) {
@@ -60,7 +67,10 @@ $tg = new message_max\manager();
 $user = null;
 $userid = null;
 
-if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) || $data->update_type == 'bot_started') {
+if (
+    isset($data->user->name) && isset($data->payload) && isset($data->user_id) ||
+    isset($data->update_type) && $data->update_type == 'bot_started'
+) {
     $fromid = clean_param($data->user_id ?? null, PARAM_INT);
     $payload = clean_param($data->payload ?? null, PARAM_TEXT);
     $username = clean_param($data->user->name ?? null, PARAM_TEXT);
