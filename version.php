@@ -18,13 +18,13 @@
  * MAX message plugin version information.
  *
  * @package     message_max
- * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026022412;
+$plugin->version   = 2026022414;
 $plugin->requires  = 2016111500;
 $plugin->component = 'message_max';
 $plugin->release   = '0.8';

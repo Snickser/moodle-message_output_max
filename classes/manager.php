@@ -545,8 +545,8 @@ class manager {
                 if ($this->usersecret_match($key, $userid)) {
                     set_user_preference('message_processor_max_chatid', $chatid, $userid);
                     $this->set_customprofile_username($userid, $username);
-                    $this->send_message(get_string('welcome', 'message_telegram'), $userid);
-                    $this->send_message('Use /help', $userid);
+                    $this->send_message(get_string('welcome', 'message_max'), $userid);
+                    $this->send_message(get_string('usehelp', 'message_max'), $userid);
                     $this->groupinvite($chatid, explode(",", $this->config('sitebotaddtogroup')), $userid);
                     return $userid;
                 }

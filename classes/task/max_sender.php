@@ -18,7 +18,7 @@
  * MAX sender
  *
  * @package     message_max
- * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,7 +31,7 @@ require_once($CFG->libdir . '/filelib.php');
 /**
  * Default tasks.
  *
- * @package    paygw_robokassa
+ * @package    message_max
  * @copyright  2024 Alex Orlov <snicker@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

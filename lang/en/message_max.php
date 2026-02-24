@@ -18,7 +18,7 @@
  * Strings for MAX message plugin.
  *
  * @package     message_max
- * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -140,6 +140,7 @@ $string['striptags'] = 'Strip tags';
 $string['tgext'] = 'Path to external sender';
 $string['unsetwebhook'] = 'Unset MAX webhook';
 $string['unsetwebhooksuccess'] = 'Webhook removed';
+$string['usehelp'] = 'Use /help';
 $string['usernamefield'] = 'Username save field';
 $string['usernamefield_desc'] = 'Default short name for extended user profile field is "max_username".';
 

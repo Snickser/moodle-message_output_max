@@ -18,7 +18,7 @@
  * MAX connection handler.
  *
  * @package     message_max
- * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
