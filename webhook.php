@@ -61,10 +61,12 @@ $user = null;
 $userid = null;
 
 if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) || $data->update_type == 'bot_started') {
-    $fromid = $data->user_id ?? null;
-    $payload = $data->payload ?? null;
+    $fromid = clean_param($data->user_id ?? null, PARAM_INT);
+    $payload = clean_param($data->payload ?? null, PARAM_TEXT);
+    $username = clean_param($data->user->name ?? null, PARAM_TEXT);
+    $firstname = clean_param($data->user->first_name ?? null, PARAM_TEXT);
 
-    $newuser = $tg->set_webhook_chatid($fromid, $payload, $data->user->name);
+    $newuser = $tg->set_webhook_chatid($fromid, $payload, $username);
     if ($newuser) {
         if ($user = $DB->get_record('user', ['id' => $newuser])) {
             profile_load_data($user);
@@ -90,7 +92,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         if (isset($user)) {
             $text = get_string('welcometosite', 'moodle', ['firstname' => fullname($user)]);
         } else {
-            $text = get_string('welcometosite', 'moodle', ['firstname' => $data->user->first_name]);
+            $text = get_string('welcometosite', 'moodle', ['firstname' => $firstname]);
         }
         $text .= PHP_EOL . get_string('enter_phone', 'message_max');
     } else {
@@ -122,7 +124,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         if (isset($user)) {
             $text = get_string('welcomeback', 'moodle', ['firstname' => fullname($user)]);
         } else {
-            $text = get_string('welcometosite', 'moodle', ['firstname' => $data->user->first_name]);
+            $text = get_string('welcometosite', 'moodle', ['firstname' => $firstname]);
         }
     }
 
@@ -140,9 +142,11 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
     $chatid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $text = clean_param($data->message->body->text ?? null, PARAM_TEXT);
     $username = clean_param($data->message->sender->name ?? null, PARAM_TEXT);
+    $firstname = clean_param($data->message->from->first_name ?? null, PARAM_TEXT);
 
     $record = $DB->get_record('message_max', ['chatid' => $chatid]);
     $lastmsgid = clean_param($data->message->body->mid ?? null, PARAM_TEXT);
+    $messageid = clean_param($data->message->message_id ?? null, PARAM_TEXT);
     $lastdata = $text;
     $step = 'command';
 
@@ -166,9 +170,9 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
 
     if ($chatid < 0) {
         if ($user) {
-            message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id);
+            message_max_private_answer($tg, $config->sitebotusername, $chatid, $messageid);
         } else {
-            message_max_private_answer($tg, $config->sitebotusername, $chatid, $data->message->message_id, "?start=0");
+            message_max_private_answer($tg, $config->sitebotusername, $chatid, $messageid, "?start=0");
         }
     }
 
@@ -176,7 +180,7 @@ if (isset($data->user->name) && isset($data->payload) && isset($data->user_id) |
         if ($user) {
             $text = get_string('welcometosite', 'moodle', ['firstname' => fullname($user)]);
         } else {
-            $text = get_string('welcometosite', 'moodle', ['firstname' => $data->message->from->first_name]);
+            $text = get_string('welcometosite', 'moodle', ['firstname' => $firstname]);
         }
         $response = $tg->send_message($text, $userid);
     } else if ($userid && isset($data->message->body->attachments[0]->payload->vcf_info)) {

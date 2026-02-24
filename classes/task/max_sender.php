@@ -66,7 +66,12 @@ class max_sender extends \core\task\scheduled_task {
                     continue;
                 }
 
-                $this->sendmsg($token, $pmode, $dir . '/' . $file);
+                $filepath = $dir . '/' . $file;
+                if (!is_file($filepath)) {
+                    continue;
+                }
+
+                $this->sendmsg($token, $pmode, $filepath);
 
                 usleep(50000);
             }
