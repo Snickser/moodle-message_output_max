@@ -122,7 +122,7 @@ function message_max_extend_navigation_user_settings($navigation, $user, $contex
  * Sends a reply to a user in private chat or a notification in a group.
  * Displays a button to continue the conversation in the bot.
  *
- * @param object $tg        MAX API client instance with send_api_command method.
+ * @param object $mx        MAX API client instance with send_api_command method.
  * @param string $botname   Bot name in MAX (without @).
  * @param int    $chatid    Chat ID to send the message to.
  * @param int    $messageid Message ID to reply to.
