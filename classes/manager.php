@@ -87,13 +87,37 @@ class manager {
         $message = mb_substr($message, 0, 4000, 'UTF-8');
 
         if ($this->config('tgext')) {
-            if (is_file($this->config('tgext')) && is_executable($this->config('tgext'))) {
-                $fp = popen($this->config('tgext'), "wb");
-                fwrite($fp, $chatid . "\n" . $message);
-                pclose($fp);
-                $response = (object)["ok" => true];
+            $tgext = $this->config('tgext');
+
+            // Validate: file must exist and be executable.
+            if (is_file($tgext) && is_executable($tgext)) {
+                // Validate: path must be within dataroot or moodle root.
+                $realtgext = realpath($tgext);
+                $allowedpaths = [$CFG->dataroot, $CFG->dirroot];
+                $isallowed = false;
+                foreach ($allowedpaths as $allowed) {
+                    if ($realtgext && strpos($realtgext, $allowed) === 0) {
+                        $isallowed = true;
+                        break;
+                    }
+                }
+
+                if (!$isallowed) {
+                    debugging('tgext: file must be located in dataroot or dirroot', DEBUG_DEVELOPER);
+                    $response = (object)["ok" => false, "error_code" => '403', "description" => 'Invalid path'];
+                } else {
+                    // Pass data via stdin.
+                    $fp = popen($tgext, "wb");
+                    if ($fp) {
+                        fwrite($fp, $chatid . "\n" . $message);
+                        pclose($fp);
+                        $response = (object)["ok" => true];
+                    } else {
+                        $response = (object)["ok" => false, "error_code" => '500', "description" => 'Cannot open process'];
+                    }
+                }
             } else {
-                $response = (object)["ok" => false, "error_code" => '404', "description" => $this->config('tgext')];
+                $response = (object)["ok" => false, "error_code" => '404', "description" => $tgext];
             }
         } else {
             $response = $this->send_api_command(
