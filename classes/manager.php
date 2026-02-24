@@ -18,7 +18,7 @@
  * MAX message plugin version information.
  *
  * @package     message_max
- * @copyright   2025 Alex Orlov <snickser@gmail.com>
+ * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -57,7 +57,7 @@ class manager {
     public $courseid;
 
     /**
-     * Constructor. Loads all needed data.
+     * Constructor. Loads all needed configuration data.
      */
     public function __construct() {
         $this->config = get_config('message_max');
@@ -65,12 +65,14 @@ class manager {
 
     /**
      * Send the message to MAX.
-     * @param string $message The message contect to send to Slack.
+     * @param string $message The message content to send to MAX.
      * @param int $userid The Moodle user id that is being sent to.
+     * @return bool True if message sent successfully.
      */
     public function send_message($message, $userid) {
         global $CFG;
 
+        // Check if bot token is configured or if user has connected their MAX account.
         if (empty($this->config('sitebottoken'))) {
             return true;
         } else if (empty($chatid = get_user_preferences('message_processor_max_chatid', '', $userid))) {
@@ -79,13 +81,16 @@ class manager {
 
         $today = date("Y-m-d H:i:s");
 
+        // Process message based on parse mode settings.
         if ($this->config('parsemode') == 'HTML') {
             $message = strip_tags($message, "<b><strong><i><em><a><u><ins><code><pre><blockquote><tg-spoiler><tg-emoji>");
         } else if ($this->config('striptags')) {
             $message = html_to_text($message);
         }
+        // Truncate message to MAX API limit.
         $message = mb_substr($message, 0, 4000, 'UTF-8');
 
+        // Send via external script (tgext) if configured - for rate limiting or custom routing.
         if ($this->config('tgext')) {
             $tgext = $this->config('tgext');
 
@@ -120,6 +125,7 @@ class manager {
                 $response = (object)["ok" => false, "error_code" => '404', "description" => $tgext];
             }
         } else {
+            // Send via MAX API directly.
             $response = $this->send_api_command(
                 'messages?user_id=' . $chatid . '&disable_link_preview=true',
                 [
@@ -128,6 +134,7 @@ class manager {
                 ],
                 1,
             );
+            // Queue message for later delivery if API call fails.
             if (!isset($response->message->recipient->user_id)) {
                 $fname = $CFG->tempdir . '/max/';
                 // Check if spool dir not exist.
@@ -139,6 +146,7 @@ class manager {
             }
         }
 
+        // Optional: log message delivery for debugging.
         if ($this->config('maxlog')) {
             $buff = $today . " " . $userid . " " . $chatid . " " . mb_strlen($message);
             if (isset($response->message->body->mid)) {
@@ -182,7 +190,7 @@ class manager {
      * @return string The HTML for the form.
      */
     public function config_form($preferences, $userid) {
-        // If the chatid is not set, display the link to do this.
+        // If the chatid is not set, display the link to connect MAX account.
         if (!$this->is_chatid_set($userid, $preferences)) {
             // Temporarily set the user's chatid to the sesskey value for security.
             $key = $this->set_usersecret($userid);
@@ -192,6 +200,7 @@ class manager {
             $configbutton .= '<div align="center"><a href="' . $url . '" target="_blank">' .
                 get_string('connectme', 'message_max') . '</a></div>';
         } else {
+            // User is connected - show disconnect link.
             $url = new \moodle_url($this->redirect_uri(), ['action' => 'removechatid', 'userid' => $userid,
                 'sesskey' => sesskey()]);
             $configbutton = '<a target=_blank href="https://max.ru/' . $this->config('sitebotusername') .
@@ -203,8 +212,9 @@ class manager {
     }
 
     /**
-     * Construct a variable used only by the plugin to help ensure user identity.
-     * @return string A constructed variable for this user (Moodle's sesskey).
+     * Generate a secret token for user identity verification.
+     * Uses random bytes for webhook mode, sesskey otherwise.
+     * @return string A constructed variable for this user (Moodle's sesskey or random hex).
      */
     public function usersecret() {
         if ($this->config('webhook')) {
@@ -226,6 +236,7 @@ class manager {
             $userid = $USER->id;
         }
 
+        // Require admin capability if modifying another user's settings.
         if ($userid != $USER->id) {
             require_capability('moodle/site:config', \context_system::instance());
         }
@@ -250,6 +261,7 @@ class manager {
             $userid = $USER->id;
         }
 
+        // Require admin capability if verifying another user's secret (unless webhook mode).
         if ($userid != $USER->id && !$this->config('webhook')) {
             require_capability('moodle/site:config', \context_system::instance());
         }
@@ -259,7 +271,7 @@ class manager {
     }
 
     /**
-     * Verify that a user has their chat id set.
+     * Verify that a user has their chat id set (not just the secret prefix).
      * @param int $userid The id of the user to check.
      * @param object $preferences Contains the MAX user preferences for the user, if present.
      * @return boolean True if the id is set.
@@ -286,11 +298,13 @@ class manager {
 
     /**
      * Given a valid bot token, get the name and username of the bot.
+     * @return boolean True if bot info updated successfully.
      */
     public function update_bot_info() {
         if (empty($this->config('sitebottoken'))) {
             return false;
         } else {
+            // Call MAX API 'me' endpoint to get bot information.
             $response = $this->send_api_command('me');
             if ($response->user_id) {
                 $this->set_config('sitebotname', $response->first_name);
@@ -303,8 +317,8 @@ class manager {
     }
 
     /**
-     * Get the latest information from the Slack bot, and see if the user has initiated a connection.
-     * Only needed if no webHook has been created.
+     * Get the latest updates from the MAX bot and check if a user has initiated a connection.
+     * Only used when webhook mode is disabled (polling mode).
      * @param int $userid The id of the user in question.
      * @return boolean Success.
      */
@@ -318,10 +332,12 @@ class manager {
         if (empty($this->config('sitebottoken'))) {
             return false;
         } else {
+            // Fetch updates from MAX API.
             $results = $this->get_updates();
             if (isset($results->updates)) {
                 foreach ($results->updates as $object) {
                     if (isset($object->user)) {
+                        // Verify user secret to confirm identity.
                         if ($this->usersecret_match($object->payload)) {
                             set_user_preference('message_processor_max_chatid', $object->user->user_id, $userid);
                             $this->set_customprofile_username($userid, $object->user->name);
@@ -365,6 +381,7 @@ class manager {
         if (empty($this->config('sitebottoken'))) {
             $message = get_string('sitebottokennotsetup', 'message_max');
         } else {
+            // Register webhook URL with MAX API.
             $url = new \moodle_url('/message/output/max/webhook.php');
             $response = $this->send_api_command('subscriptions', ['url' => $url->out(),
             'secret' => $this->config('sitebotsecret'),
@@ -385,6 +402,7 @@ class manager {
      */
     public function remove_webhook() {
         $message = false;
+        // Unregister webhook URL from MAX API.
         $url = new \moodle_url('/message/output/max/webhook.php');
         $response = $this->send_api_command('subscriptions?url=' . $url->out(), null, 2);
         if (!empty($response) && isset($response->success) && ($response->success == true)) {
@@ -402,6 +420,7 @@ class manager {
      * @return object The JSON decoded results object.
      */
     public function get_updates() {
+        // If webhook is enabled, no need to poll for updates.
         if ($this->config('webhook')) {
             return true;
         }
@@ -416,8 +435,8 @@ class manager {
     /**
      * Send a MAX API command and return the results.
      * @param string $command The API command to send.
-     * @param array $params The parameters to send to the API command. Can be ommited.
-     * @param int $method Get or Post method. Can be ommited.
+     * @param array $params The parameters to send to the API command. Can be omitted.
+     * @param int $method HTTP method: 0=GET, 1=POST, 2=DELETE, 3=PUT.
      * @return object The JSON decoded return object.
      */
     public function send_api_command($command, $params = null, $method = 0) {
@@ -427,6 +446,7 @@ class manager {
 
         $this->curl = new \curl();
 
+        // Configure curl options for MAX API.
         $options = [
          'CURLOPT_RETURNTRANSFER' => true,
          'CURLOPT_TIMEOUT' => 30,
@@ -440,18 +460,24 @@ class manager {
 
         $location = 'https://platform-api.max.ru/' . $command;
 
+        // Execute API command with specified HTTP method.
         if ($method == 1) {
+            // POST request.
             $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
             $response = $this->curl->post($location, $payload, $options);
         } else if ($method == 2) {
+            // DELETE request.
             $response = $this->curl->delete($location, null, $options);
         } else if ($method == 3) {
+            // PUT request.
             $payload = json_encode($params, JSON_UNESCAPED_UNICODE);
             $response = $this->curl->put($location, $payload, $options);
         } else {
+            // GET request.
             $response = $this->curl->get($location, $params, $options);
         }
 
+        // Check for curl errors.
         if (!empty($this->curl->errno)) {
             return $this->curl->error;
         }
@@ -459,10 +485,10 @@ class manager {
     }
 
     /**
-     * Set custom profile field.
-     * @param string $userid userid.
-     * @param string $username username.
-     * @return boolean Success or failure.
+     * Set custom profile field for the user (e.g., MAX username).
+     * @param int $userid User ID.
+     * @param string $username Username to store.
+     * @return bool Success or failure.
      */
     private function set_customprofile_username($userid, $username = null) {
         global $DB;
@@ -472,6 +498,7 @@ class manager {
         if (empty($this->config('sitebotusernamefield'))) {
             return false;
         }
+        // Update or insert custom profile field.
         if ($field = $DB->get_record('user_info_field', ['shortname' => $this->config('sitebotusernamefield')])) {
             $record = $DB->get_record('user_info_data', ['userid' => $userid, 'fieldid' => $field->id]);
             if ($record) {
@@ -493,11 +520,11 @@ class manager {
     }
 
     /**
-     * Only if webHook has been created.
-     * @param  string $chatid
-     * @param  string $key
-     * @param  string $username
-     * @return boolean|string Success.
+     * Link user's MAX chat ID to their Moodle account (webhook mode).
+     * @param string $chatid MAX chat ID.
+     * @param string $key User secret key for verification.
+     * @param string $username MAX username.
+     * @return int|false User ID on success, false on failure.
      */
     public function set_webhook_chatid($chatid = null, $key = null, $username = null) {
         global $DB;
@@ -505,6 +532,7 @@ class manager {
         if (empty($this->config('sitebottoken')) || empty($chatid) || empty($key)) {
             return false;
         } else {
+            // Find user by secret key.
             $sql = "name = :name AND " . $DB->sql_compare_text('value') . " = :secret";
             $params = [
             'name'   => 'message_processor_max_chatid',
@@ -513,6 +541,7 @@ class manager {
 
             if ($record = $DB->get_record_select('user_preferences', $sql, $params, 'id, userid')) {
                 $userid = $record->userid;
+                // Verify secret matches before linking.
                 if ($this->usersecret_match($key, $userid)) {
                     set_user_preference('message_processor_max_chatid', $chatid, $userid);
                     $this->set_customprofile_username($userid, $username);
@@ -527,15 +556,16 @@ class manager {
     }
 
     /**
-     * Get userid by chatid.
-     * @param  string $chatid
-     * @return boolean|int $userids
+     * Get Moodle user ID(s) by MAX chat ID.
+     * @param string $chatid MAX chat ID.
+     * @return array Array of user IDs.
      */
     public function get_userids_by_chatid($chatid) {
         global $DB;
 
         $userids = [];
 
+        // Search for all users with this chat ID (supports multiple accounts).
         $sql = "name = :name AND " . $DB->sql_compare_text('value') . " = :secret";
         $params = [
             'name'   => 'message_processor_max_chatid',
@@ -552,16 +582,17 @@ class manager {
     }
 
     /**
-     * Get userid by chatid.
-     * @param  string $chatid
-     * @param  array  $chats
-     * @param  string $userid
-     * @return boolean|string Success
+     * Invite user to MAX chat/group.
+     * @param string $chatid User's MAX chat ID.
+     * @param array $chats List of chat IDs to invite to.
+     * @param int $userid Moodle user ID.
+     * @return bool True on success.
      */
     public function groupinvite($chatid, $chats, $userid) {
         foreach ($chats as $ch) {
             $ch = trim($ch);
             if ($ch !== '') {
+                // Get chat info from MAX API.
                 $response = $this->send_api_command('chats/' . $ch);
                 if (isset($response->link) && isset($response->title)) {
                     $a = (object)[
@@ -577,6 +608,7 @@ class manager {
                     ];
                 }
 
+                // Add user to chat.
                 $response = $this->send_api_command(
                     'chats/' . $ch . '/members',
                     [

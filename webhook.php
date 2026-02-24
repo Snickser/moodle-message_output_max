@@ -38,10 +38,11 @@ use core_completion\progress;
 
 $headers = getallheaders();
 
+// Read and parse JSON payload from request body.
 $update = file_get_contents("php://input");
 $data = json_decode($update, false);
 
-// Validate JSON parsing.
+// Validate JSON parsing - reject malformed JSON requests.
 if (json_last_error() !== JSON_ERROR_NONE || !is_object($data)) {
     http_response_code(400);
     echo "Invalid JSON";
@@ -50,10 +51,12 @@ if (json_last_error() !== JSON_ERROR_NONE || !is_object($data)) {
 
 $config = get_config('message_max');
 
+// Optional: log webhook data for debugging.
 if ($config->maxwebhookdump) {
     file_put_contents($CFG->tempdir . '/max.log', serialize($data) . "\n\n", FILE_APPEND | LOCK_EX);
 }
 
+// Validate webhook secret token - main security check.
 if (!isset($headers['X-Max-Bot-Api-Secret']) || $headers['X-Max-Bot-Api-Secret'] != $config->sitebotsecret) {
     http_response_code(200);
     echo "OK";
@@ -67,10 +70,12 @@ $tg = new message_max\manager();
 $user = null;
 $userid = null;
 
+// Process bot_started event or user connection request.
 if (
-    isset($data->user->name) && isset($data->payload) && isset($data->user_id) ||
-    isset($data->update_type) && $data->update_type == 'bot_started'
+    (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) ||
+    (isset($data->update_type) && $data->update_type == 'bot_started')
 ) {
+    // Sanitize input data.
     $fromid = clean_param($data->user_id ?? null, PARAM_INT);
     $payload = clean_param($data->payload ?? null, PARAM_TEXT);
     $username = clean_param($data->user->name ?? null, PARAM_TEXT);
@@ -148,18 +153,22 @@ if (
         1
     );
 } else if (isset($data->message) && !isset($data->callback)) {
+    // Process incoming message from user.
+    // Sanitize input data.
     $fromid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $chatid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $text = clean_param($data->message->body->text ?? null, PARAM_TEXT);
     $username = clean_param($data->message->sender->name ?? null, PARAM_TEXT);
     $firstname = clean_param($data->message->from->first_name ?? null, PARAM_TEXT);
 
+    // Load user state from database.
     $record = $DB->get_record('message_max', ['chatid' => $chatid]);
     $lastmsgid = clean_param($data->message->body->mid ?? null, PARAM_TEXT);
     $messageid = clean_param($data->message->message_id ?? null, PARAM_TEXT);
     $lastdata = $text;
     $step = 'command';
 
+    // Find Moodle user(s) linked to this chat ID.
     $userids = $tg->get_userids_by_chatid($fromid);
     if ($userids) {
         if (count($userids) > 1) {
@@ -194,6 +203,7 @@ if (
         }
         $response = $tg->send_message($text, $userid);
     } else if ($userid && isset($data->message->body->attachments[0]->payload->vcf_info)) {
+        // Process vCard contact attachment - extract phone number.
         if ($data->message->body->attachments[0]->payload->max_info->user_id == $fromid) {
             $vcf = $data->message->body->attachments[0]->payload->vcf_info;
             $line = preg_replace("/\r\n[ \t]/", '', $vcf);
@@ -705,14 +715,18 @@ if (
         $DB->insert_record('message_max', $record);
     }
 } else if (isset($data->callback->payload)) {
+    // Process callback query (inline keyboard button press).
+    // Sanitize input data.
     $fromid = clean_param($data->callback->user->user_id, PARAM_INT);
     $chatid = $fromid;
 
+    // Load user state from database.
     $record = $DB->get_record('message_max', ['chatid' => $chatid]);
     $lastmsgid = clean_param($data->message->body->mid, PARAM_TEXT);
     $lastdata = clean_param($data->callback->payload, PARAM_TEXT);
     $step = 'callback';
 
+    // Find Moodle user(s) linked to this chat ID.
     $userids = $tg->get_userids_by_chatid($fromid);
     if ($userids) {
         if (count($userids) > 1) {
@@ -745,6 +759,8 @@ if (
             user_update_user($user, false, true);
         }
     } else if (strpos($data->callback->payload, '/students') === 0 && $userid && $config->sitebotenablereports) {
+        // Handle /students command - generate student progress report.
+        // Parse callback payload: /students <courseid> <groupid> <accept>.
         preg_match('/^\/students(?: (\d+))?(?: (-?\d+))?(?: (\d+))?/', $data->callback->payload, $matches);
         $courseid = isset($matches[1]) ? (int)$matches[1] : null;
         $groupid  = isset($matches[2]) ? (int)$matches[2] : null;
@@ -1068,6 +1084,7 @@ if (
                     $type = 0;
                 }
             }
+            // Create calendar event with validated data.
             $event = new stdClass();
             $event->name        = $name;
             $event->description = '';
