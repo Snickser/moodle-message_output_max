@@ -67,9 +67,10 @@ class manager {
      * Send the message to MAX.
      * @param string $message The message content to send to MAX.
      * @param int $userid The Moodle user id that is being sent to.
+     * @param bool $markdown
      * @return bool True if message sent successfully.
      */
-    public function send_message($message, $userid) {
+    public function send_message($message, $userid, $markdown = false) {
         global $CFG;
 
         // Check if bot token is configured or if user has connected their MAX account.
@@ -82,7 +83,9 @@ class manager {
         $today = date("Y-m-d H:i:s");
 
         // Process message based on parse mode settings.
-        if ($this->config('parsemode') == 'HTML') {
+        if ($markdown) {
+            $message = $message;
+        } else if ($this->config('parsemode') == 'HTML') {
             $message = strip_tags($message, "<b><strong><i><em><a><u><ins><code><pre><blockquote><tg-spoiler><tg-emoji>");
         } else if ($this->config('striptags')) {
             $message = html_to_text($message);
@@ -130,7 +133,7 @@ class manager {
                 'messages?user_id=' . $chatid . '&disable_link_preview=true',
                 [
                  'text' => $message,
-                 'format' => 'html',
+                 'format' => ($markdown ? 'markdown' : 'html'),
                 ],
                 1,
             );
@@ -163,6 +166,35 @@ class manager {
         }
 
         return (!empty($response) && isset($response->ok) && ($response->ok == true));
+    }
+
+    /**
+     * Send a temporary "thinking" message to MAX.
+     * @param string $chatid The MAX chat id.
+     * @param string $text The text of the temporary message.
+     * @return object The response object containing message_id.
+     */
+    public function send_temp_message($chatid, $text = null) {
+        if (!$text) {
+            $text = get_string('waitai', 'message_max');
+        }
+        return $this->send_api_command(
+            'messages?user_id=' . $chatid,
+            [
+                'text' => $text,
+                'format' => 'html',
+            ],
+            1
+        );
+    }
+
+    /**
+     * Delete a message in MAX.
+     * @param int $messageid The message ID to delete.
+     * @return object The response object.
+     */
+    public function delete_message($messageid) {
+        return $this->send_api_command('messages?message_id=' . $messageid, null, 2);
     }
 
     /**

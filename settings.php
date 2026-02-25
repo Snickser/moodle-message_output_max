@@ -276,6 +276,36 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_heading(
+        'message_max_mistral',
+        get_string('mistralsettings', 'message_max'),
+        get_string('mistralsettings_desc', 'message_max'),
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/mistralapikey',
+        get_string('mistralapikey', 'message_max'),
+        get_string('mistralapikey_desc', 'message_max'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/mistralmodel',
+        get_string('mistralmodel', 'message_max'),
+        get_string('mistralmodel_desc', 'message_max'),
+        'mistral-small-latest',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/mistralprompt',
+        get_string('mistralprompt', 'message_max'),
+        get_string('mistralprompt_desc', 'message_max'),
+        get_string('mistralprompt_default', 'message_max'),
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_heading(
         'message_max_donate',
         ' ',
         null,

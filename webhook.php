@@ -314,6 +314,10 @@ if (
         if (file_exists($CFG->dirroot . '/admin/tool/certificate/lib.php')) {
             $text .= PHP_EOL . get_string('botcertificates', 'message_max');
         }
+        if (!empty($config->mistralapikey)) {
+            $text .= PHP_EOL . get_string('botask', 'message_max');
+            $text .= PHP_EOL . get_string('botclear', 'message_max');
+        }
         if (count($userids) > 1) {
             $text .= PHP_EOL . get_string('botuseridhelp', 'message_max');
         }
@@ -352,6 +356,36 @@ if (
         }
 
         $mx->send_message($text, $userid);
+    } else if (strpos($text, '/ask') === 0 && $userid) {
+        $question = trim(substr($text, 5));
+
+        if (empty($question)) {
+            $mx->send_message(get_string('asknoquestion', 'message_max'), $userid);
+        } else {
+            // Check if Mistral AI is configured.
+            if (empty($config->mistralapikey)) {
+                $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
+            } else {
+                // Send temporary "thinking" message.
+                if (!empty($config->mistralmodel) && $config->mistralmodel != 'mistral-small-latest') {
+                    $response = $mx->send_temp_message($chatid);
+                }
+                // Send request to Mistral AI with conversation history.
+                $mistral = new \message_max\mistral_ai();
+                $answer = $mistral->chat($question, $userid);
+                $mx->send_message($answer, $userid, true);
+                $mx->delete_message($response->message->body->mid);
+            }
+        }
+    } else if (strpos($text, '/clear') === 0 && $userid) {
+        // Clear AI conversation history.
+        if (empty($config->mistralapikey)) {
+            $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
+        } else {
+            $mistral = new \message_max\mistral_ai();
+            $mistral->clear_history($userid);
+            $mx->send_message(get_string('askcleared', 'message_max'), $userid);
+        }
     } else if (strpos($text, '/info') === 0) {
         $params = [
             'text' => '<b>' . format_string($SITE->fullname) . '</b>' . "\n🌐 " . $CFG->wwwroot . "\n✉️ " . $CFG->supportemail .
