@@ -287,7 +287,8 @@ if ($ADMIN->fulltree) {
         get_string('mistralapikey', 'message_max'),
         get_string('mistralapikey_desc', 'message_max'),
         '',
-        PARAM_TEXT
+        PARAM_TEXT,
+        40
     ));
 
     $options = [
