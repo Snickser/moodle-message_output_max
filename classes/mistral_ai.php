@@ -134,7 +134,8 @@ class mistral_ai {
         $systemprompt = $this->systemprompt;
         if ($usercontext) {
             $systemprompt .= "\n\nUser context:\n" .
-                           "Name: {$usercontext['fullname']}\n";
+                           "Name: {$usercontext['fullname']}\n" .
+                           "Format: Markdown.";
         }
         $messages[] = [
             'role' => 'system',

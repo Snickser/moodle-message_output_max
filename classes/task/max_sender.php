@@ -153,6 +153,10 @@ class max_sender extends \core\task\scheduled_task {
                 unlink($file);
                 fclose($fh);
                 mtrace('delete forbidden ' . $chatid);
+            } else if (time() - filectime($file) > 3600) {
+                unlink($file);
+                fclose($fh);
+                mtrace('delete too old ' . $chatid);
             } else {
                 mtrace(serialize($response));
             }
