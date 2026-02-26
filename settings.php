@@ -37,6 +37,7 @@ if ($ADMIN->fulltree) {
     $sitebotsecret = $maxmanager->config('sitebotsecret');
     $botname = $maxmanager->config('sitebotname');
     $botusername = $maxmanager->config('sitebotusername');
+    $mistralapikey = $maxmanager->config('mistralapikey');
 
     if (empty($sitebotsecret)) {
         $sitebotsecret = bin2hex(random_bytes(32));
@@ -290,15 +291,17 @@ if ($ADMIN->fulltree) {
     ));
 
     $options = [
-    '' => '',
+    '' => get_string('default'),
     ];
-    $mistral = new \message_max\mistral_ai();
-    $models = $mistral->get_available_models();
-    foreach ($models['data'] as $key => $value) {
-        if (!$value['capabilities']['completion_chat']) {
-            continue;
+    if ($mistralapikey) {
+        $mistral = new \message_max\mistral_ai();
+        $models = $mistral->get_available_models();
+        foreach ($models['data'] as $key => $value) {
+            if (!$value['capabilities']['completion_chat']) {
+                continue;
+            }
+            $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
         }
-        $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
     }
     $settings->add(new admin_setting_configselect(
         'message_max/mistralmodel',
