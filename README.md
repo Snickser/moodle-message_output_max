@@ -11,3 +11,4 @@ This plugin provides Moodle messaging provider for MAX.
 - Invite to a news channel or group.
 - Webhook mode (experimental!!)
 - BotMode functional (info, courses list, events, etc.).
+- Mistral.ai integration
