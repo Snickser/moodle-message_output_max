@@ -366,15 +366,15 @@ if (
             if (empty($config->mistralapikey)) {
                 $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
             } else {
-                // Send temporary "thinking" message.
-                if (!empty($config->mistralmodel) && $config->mistralmodel != 'mistral-small-latest') {
-                    $response = $mx->send_temp_message($chatid);
-                }
-                // Send request to Mistral AI with conversation history.
                 $mistral = new \message_max\mistral_ai();
+                // Send temporary "thinking" message.
+                $response = $mx->send_temp_message($chatid);
+                // Send request to Mistral AI with conversation history.
                 $answer = $mistral->chat($question, $userid);
                 $mx->send_message($answer, $userid, true);
-                $mx->delete_message($response->message->body->mid);
+                if (isset($response->message->body->mid)) {
+                    $mx->delete_message($response->message->body->mid);
+                }
             }
         }
     } else if (strpos($text, '/clear') === 0 && $userid) {

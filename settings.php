@@ -289,20 +289,31 @@ if ($ADMIN->fulltree) {
         PARAM_TEXT
     ));
 
-    $settings->add(new admin_setting_configtext(
+    $options = [
+    '' => '',
+    ];
+    $mistral = new \message_max\mistral_ai();
+    $models = $mistral->get_available_models();
+    foreach ($models['data'] as $key => $value) {
+        if (!$value['capabilities']['completion_chat']) {
+            continue;
+        }
+        $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
+    }
+    $settings->add(new admin_setting_configselect(
         'message_max/mistralmodel',
         get_string('mistralmodel', 'message_max'),
         get_string('mistralmodel_desc', 'message_max'),
-        'mistral-small-latest',
-        PARAM_TEXT
+        'mistral-medium-latest',
+        $options
     ));
 
-    $settings->add(new admin_setting_configtext(
+    $settings->add(new admin_setting_configtextarea(
         'message_max/mistralprompt',
         get_string('mistralprompt', 'message_max'),
         get_string('mistralprompt_desc', 'message_max'),
         get_string('mistralprompt_default', 'message_max'),
-        PARAM_TEXT
+        PARAM_TEXT,
     ));
 
     $settings->add(new admin_setting_heading(

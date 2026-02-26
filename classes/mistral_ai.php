@@ -67,7 +67,7 @@ class mistral_ai {
     public function __construct() {
         $this->config = get_config('message_max');
         $this->apikey = !empty($this->config->mistralapikey) ? $this->config->mistralapikey : '';
-        $this->model = !empty($this->config->mistralmodel) ? $this->config->mistralmodel : 'mistral-small-latest';
+        $this->model = !empty($this->config->mistralmodel) ? $this->config->mistralmodel : 'mistral-medium-latest';
         $this->temperature = isset($this->config->mistraltemperature) && $this->config->mistraltemperature !== ''
         ? (float)$this->config->mistraltemperature : 0.2;
         $this->maxtokens = isset($this->config->mistralmaxtokens) && $this->config->mistralmaxtokens !== ''
@@ -173,8 +173,12 @@ class mistral_ai {
             $body = json_decode($response->getBody()->getContents(), true);
 
             if (isset($body['choices'][0]['message']['content'])) {
-                $answer = trim($body['choices'][0]['message']['content']);
-
+                // Thinking model's use array.
+                if (is_array($body['choices'][0]['message']['content'])) {
+                    $answer = trim($body['choices'][0]['message']['content'][1]['text']);
+                } else {
+                    $answer = trim($body['choices'][0]['message']['content']);
+                }
                 // Save user message and AI response to history.
                 if ($userid) {
                     $this->save_message($userid, $message, true);
@@ -302,7 +306,7 @@ class mistral_ai {
             $body = json_decode($response->getBody()->getContents(), true);
 
             if (isset($body['data'])) {
-                return array_column($body['data'], 'id');
+                return $body;
             }
         } catch (\Exception $e) {
             debugging('Failed to get Mistral models: ' . $e->getMessage(), DEBUG_DEVELOPER);
