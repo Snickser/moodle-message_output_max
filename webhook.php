@@ -158,6 +158,7 @@ if (
     $fromid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $chatid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
     $text = clean_param($data->message->body->text ?? null, PARAM_TEXT);
+    $voice = clean_param($data->message->body->attachments[0]->payload->url ?? null, PARAM_TEXT);
     $username = clean_param($data->message->sender->name ?? null, PARAM_TEXT);
     $firstname = clean_param($data->message->from->first_name ?? null, PARAM_TEXT);
 
@@ -718,6 +719,25 @@ if (
         $step = 'get_text';
         $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
+    } else if ($voice && !empty($config->mistralapikey) && $userid) {
+        // Send temporary "thinking" message.
+        $tmpmsg = $mx->send_temp_message($chatid);
+        // Get voice file.
+        $curl = new curl();
+        $file = $curl->get($voice);
+        $tempfile = tempnam(make_temp_directory('message_max'), 'voice_');
+        file_put_contents($tempfile, $file);
+        // Send request to Mistral AI.
+        $mistral = new \message_max\mistral_ai();
+        $answer = $mistral->transcribe_audio_file($tempfile);
+        if (file_exists($tempfile)) {
+            unlink($tempfile);
+        }
+        $mx->send_message('/ask ' . $answer, $userid);
+        // Delete tmp message.
+        if (isset($tmpmsg->message->body->mid)) {
+            $mx->delete_message($tmpmsg->message->body->mid);
+        }
     } else if ($text && $userid) {
         $response = message_max_send_menu($mx, $fromid, get_string('botidontknow', 'message_max'));
     } else if ($text) {
