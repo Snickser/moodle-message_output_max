@@ -304,11 +304,31 @@ if ($ADMIN->fulltree) {
             $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
         }
     }
+
     $settings->add(new admin_setting_configselect(
         'message_max/mistralmodel',
         get_string('mistralmodel', 'message_max'),
         get_string('mistralmodel_desc', 'message_max'),
         'mistral-medium-latest',
+        $options
+    ));
+
+    $options = [
+    '' => get_string('default'),
+    ];
+    if ($mistralapikey) {
+        foreach ($models['data'] as $key => $value) {
+            if (!$value['capabilities']['audio_transcription']) {
+                continue;
+            }
+            $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
+        }
+    }
+    $settings->add(new admin_setting_configselect(
+        'message_max/mistraltranscriptionmodel',
+        get_string('mistraltranscriptionmodel', 'message_max'),
+        get_string('mistraltranscriptionmodel_desc', 'message_max'),
+        'voxtral-mini-latest',
         $options
     ));
 

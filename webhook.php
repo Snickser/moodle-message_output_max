@@ -730,11 +730,11 @@ if (
         // Send request to Mistral AI.
         $mistral = new \message_max\mistral_ai();
         $answer = $mistral->transcribe_audio_file($tempfile);
+        $mx->send_message('/ask ' . $answer, $userid);
         if (file_exists($tempfile)) {
             unlink($tempfile);
         }
-        $mx->send_message('/ask ' . $answer, $userid);
-        // Delete tmp message.
+        // Delete temp message.
         if (isset($tmpmsg->message->body->mid)) {
             $mx->delete_message($tmpmsg->message->body->mid);
         }

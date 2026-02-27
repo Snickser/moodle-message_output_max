@@ -335,7 +335,7 @@ class mistral_ai {
         // Get model from config (use whisper model for transcription).
         $transcriptionmodel = !empty($this->config->mistraltranscriptionmodel)
             ? $this->config->mistraltranscriptionmodel
-            : 'voxtral-mini-2602';
+            : 'voxtral-mini-latest';
 
         try {
             // Prepare multipart form data for file upload.

@@ -127,6 +127,8 @@ $string['mistralprompt_default'] = 'You are a helpful assistant for the Moodle e
 $string['mistralprompt_desc'] = 'Instructions for the AI assistant';
 $string['mistralsettings'] = 'Mistral AI (chatbot)';
 $string['mistralsettings_desc'] = 'Mistral AI integration settings for answering user questions via /ask command';
+$string['mistraltranscriptionmodel'] = 'Mistral transcription model';
+$string['mistraltranscriptionmodel_desc'] = 'e.g., voxtral-mini-latest';
 $string['notconfigured'] = 'The MAX server hasn\'t been configured so MAX messages cannot be sent';
 
 $string['parse_html'] = 'HTML format';
