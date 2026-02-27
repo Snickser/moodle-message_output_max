@@ -719,7 +719,7 @@ if (
         $step = 'get_text';
         $lastmsgid = $response->message->body->mid;
         $lastdata = $record->lastdata;
-    } else if ($voice && !empty($config->mistralapikey) && $userid) {
+    } else if ($voice && !empty($config->mistralapikey) && $data->message->body->attachments[0]->type == "audio" && $userid) {
         // Send temporary "thinking" message.
         $tmpmsg = $mx->send_temp_message($chatid);
         // Get voice file.
