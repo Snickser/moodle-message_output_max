@@ -71,7 +71,8 @@ class openrouter_ai {
         $this->config = get_config('message_max');
         $this->apikey = !empty($this->config->openrouterapikey) ? $this->config->openrouterapikey : '';
         // Use a free/accessible model as default - change to your preferred model in settings.
-        $this->model = !empty($this->config->openroutermodel) ? $this->config->openroutermodel : 'meta-llama/llama-3-8b-instruct:free';
+        $this->model = !empty($this->config->openroutermodel) ? $this->config->openroutermodel :
+        'meta-llama/llama-3-8b-instruct:free';
         $this->temperature = isset($this->config->openroutertemperature) && $this->config->openroutertemperature !== ''
             ? (float)$this->config->openroutertemperature : 0.3;
         $this->maxtokens = isset($this->config->openroutermaxtokens) && $this->config->openroutermaxtokens !== ''
@@ -107,10 +108,10 @@ class openrouter_ai {
      * Send a chat completion request to OpenRouter.
      *
      * @param string $message User message.
-     * @param int $userid Moodle user ID for context.
+     * @param int|null $userid Moodle user ID for context.
      * @return string AI response text.
      */
-    public function chat(string $message, int $userid = null): string {
+    public function chat(string $message, ?int $userid = null): string {
         global $DB, $USER;
 
         if (!$this->is_enabled()) {
@@ -199,7 +200,8 @@ class openrouter_ai {
             }
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                debugging('OpenRouter JSON decode error: ' . json_last_error_msg() . ' - Raw response: ' . substr($bodycontent, 0, 200), DEBUG_DEVELOPER);
+                debugging('OpenRouter JSON decode error: ' . json_last_error_msg() . ' - Raw response: ' .
+                substr($bodycontent, 0, 200), DEBUG_DEVELOPER);
                 return get_string('openroutererror', 'message_max');
             }
 

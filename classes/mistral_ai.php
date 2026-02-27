@@ -104,10 +104,10 @@ class mistral_ai {
      * Send a chat completion request to Mistral AI.
      *
      * @param string $message User message.
-     * @param int $userid Moodle user ID for context.
+     * @param int|null $userid Moodle user ID for context.
      * @return string AI response text.
      */
-    public function chat(string $message, int $userid = null): string {
+    public function chat(string $message, ?int $userid = null): string {
         global $DB, $USER;
 
         if (!$this->is_enabled()) {
