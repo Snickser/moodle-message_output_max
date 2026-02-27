@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Mistral AI API client for MAX message plugin.
+ * OpenRouter API client for MAX message plugin.
  *
  * @package     message_max
  * @copyright   2026 Alex Orlov <snickser@gmail.com>
@@ -31,15 +31,16 @@ require_once($CFG->dirroot . '/lib/classes/http_client.php');
 use core\http_client;
 
 /**
- * Class mistral_ai
+ * Class openrouter_ai
  *
- * Provides integration with Mistral AI API for chatbot functionality.
+ * Provides integration with OpenRouter API for chatbot functionality.
+ * OpenRouter provides unified access to multiple AI models from different providers.
  *
  * @package     message_max
  * @copyright   2026 Alex Orlov <snickser@gmail.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mistral_ai {
+class openrouter_ai {
     /** @var array Configuration array */
     private $config;
 
@@ -65,34 +66,36 @@ class mistral_ai {
      * Constructor.
      */
     public function __construct() {
+        global $CFG;
+
         $this->config = get_config('message_max');
-        $this->apikey = !empty($this->config->mistralapikey) ? $this->config->mistralapikey : '';
-        $this->model = !empty($this->config->mistralmodel) ? $this->config->mistralmodel : 'mistral-medium-latest';
-        $this->temperature = isset($this->config->mistraltemperature) && $this->config->mistraltemperature !== ''
-        ? (float)$this->config->mistraltemperature : 0.3;
-        $this->maxtokens = isset($this->config->mistralmaxtokens) && $this->config->mistralmaxtokens !== ''
-        ? (int)$this->config->mistralmaxtokens : 2048;
+        $this->apikey = !empty($this->config->openrouterapikey) ? $this->config->openrouterapikey : '';
+        // Use a free/accessible model as default - change to your preferred model in settings.
+        $this->model = !empty($this->config->openroutermodel) ? $this->config->openroutermodel : 'meta-llama/llama-3-8b-instruct:free';
+        $this->temperature = isset($this->config->openroutertemperature) && $this->config->openroutertemperature !== ''
+            ? (float)$this->config->openroutertemperature : 0.3;
+        $this->maxtokens = isset($this->config->openroutermaxtokens) && $this->config->openroutermaxtokens !== ''
+            ? (int)$this->config->openroutermaxtokens : 2048;
 
         // Get system prompt from config or use default.
-        if (!empty($this->config->mistralprompt)) {
-            $this->systemprompt = $this->config->mistralprompt;
+        if (!empty($this->config->openrouterprompt)) {
+            $this->systemprompt = $this->config->openrouterprompt;
         } else {
-            $this->systemprompt = get_string('mistralprompt_default', 'message_max');
+            $this->systemprompt = get_string('openrouterprompt_default', 'message_max');
         }
 
         $this->client = new http_client([
-            'base_uri' => 'https://api.mistral.ai',
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->apikey,
                 'Content-Type' => 'application/json',
-                'User-Agent' => 'Moodle-Mistral-Integration',
+                'User-Agent' => 'Moodle-OpenRouter-Integration',
             ],
-            'timeout' => 30,
+            'timeout' => 120,
         ]);
     }
 
     /**
-     * Check if Mistral AI is configured and enabled.
+     * Check if OpenRouter is configured and enabled.
      *
      * @return bool True if configured and enabled.
      */
@@ -101,7 +104,7 @@ class mistral_ai {
     }
 
     /**
-     * Send a chat completion request to Mistral AI.
+     * Send a chat completion request to OpenRouter.
      *
      * @param string $message User message.
      * @param int $userid Moodle user ID for context.
@@ -111,7 +114,7 @@ class mistral_ai {
         global $DB, $USER;
 
         if (!$this->is_enabled()) {
-            return get_string('mistralnotconfigured', 'message_max');
+            return get_string('openrouternotconfigured', 'message_max');
         }
 
         // Get user context if available.
@@ -127,7 +130,7 @@ class mistral_ai {
             }
         }
 
-        // Build messages array for Mistral API.
+        // Build messages array for OpenRouter API.
         $messages = [];
 
         // Add system prompt.
@@ -166,11 +169,39 @@ class mistral_ai {
                 'stream' => false,
             ];
 
-            $response = $this->client->post('/v1/chat/completions', [
+            // Log request for debugging.
+            debugging('OpenRouter request: model=' . $this->model . ', messages count=' . count($messages), DEBUG_DEVELOPER);
+
+            // OpenRouter uses the same endpoint as OpenAI but we need to ensure proper headers.
+            $response = $this->client->post('https://openrouter.ai/api/v1/chat/completions', [
+                'headers' => [
+                    'HTTP-Referer' => $CFG->wwwroot ?? '',
+                    'X-Title' => 'Moodle LMS',
+                ],
                 'json' => $requestdata,
             ]);
 
-            $body = json_decode($response->getBody()->getContents(), true);
+            $statuscode = $response->getStatusCode();
+            $bodycontent = $response->getBody()->getContents();
+
+            // Log raw response for debugging.
+            debugging('OpenRouter raw response (HTTP ' . $statuscode . '): ' . substr($bodycontent, 0, 500), DEBUG_DEVELOPER);
+
+            $body = json_decode($bodycontent, true);
+
+            // Log error if status code is not 200.
+            if ($statuscode !== 200) {
+                debugging('OpenRouter API error (HTTP ' . $statuscode . '): ' . $bodycontent, DEBUG_DEVELOPER);
+                if (isset($body['error']['message'])) {
+                    return get_string('openroutererror', 'message_max') . ': ' . $body['error']['message'];
+                }
+                return get_string('openroutererror', 'message_max');
+            }
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                debugging('OpenRouter JSON decode error: ' . json_last_error_msg() . ' - Raw response: ' . substr($bodycontent, 0, 200), DEBUG_DEVELOPER);
+                return get_string('openroutererror', 'message_max');
+            }
 
             if (isset($body['choices'][0]['message']['content'])) {
                 // Thinking model's use array.
@@ -188,10 +219,12 @@ class mistral_ai {
                 return $answer;
             }
 
-            // Log error if response is unexpected.
-            return get_string('mistralerror', 'message_max');
+            // Log error if response structure is unexpected.
+            debugging('OpenRouter unexpected response structure: ' . json_encode($body), DEBUG_DEVELOPER);
+            return get_string('openroutererror', 'message_max');
         } catch (\Exception $e) {
-            return get_string('mistralerror', 'message_max') . ': ' . $e->getMessage();
+            debugging('OpenRouter exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return get_string('openroutererror', 'message_max') . ': ' . $e->getMessage();
         }
     }
 
@@ -210,7 +243,7 @@ class mistral_ai {
         }
 
         $records = $DB->get_records(
-            'message_max_mistral',
+            'message_max_openrouter',
             ['userid' => $userid],
             'timecreated DESC',
             '*',
@@ -250,7 +283,7 @@ class mistral_ai {
         $record->isuser = $isuser ? 1 : 0;
         $record->timecreated = time();
 
-        return $DB->insert_record('message_max_mistral', $record);
+        return $DB->insert_record('message_max_openrouter', $record);
     }
 
     /**
@@ -262,70 +295,89 @@ class mistral_ai {
     public function clear_history(int $userid): bool {
         global $DB;
 
-        return $DB->delete_records('message_max_mistral', ['userid' => $userid]);
+        return $DB->delete_records('message_max_openrouter', ['userid' => $userid]);
     }
 
     /**
-     * Test the Mistral AI connection.
+     * Test the OpenRouter connection.
      *
      * @return array Result array with success status and message.
      */
     public function test_connection(): array {
         try {
-            $response = $this->client->get('/v1/models');
+            $response = $this->client->get('/models');
             $body = json_decode($response->getBody()->getContents(), true);
 
             if (isset($body['data'])) {
                 return [
                     'success' => true,
-                    'message' => get_string('mistralconnectionok', 'message_max'),
+                    'message' => get_string('openrouterconnectionok', 'message_max'),
                     'models' => array_column($body['data'], 'id'),
                 ];
             }
 
             return [
                 'success' => false,
-                'message' => get_string('mistralconnectionerror', 'message_max'),
+                'message' => get_string('openrouterconnectionerror', 'message_max'),
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => get_string('mistralconnectionerror', 'message_max') . ': ' . $e->getMessage(),
+                'message' => get_string('openrouterconnectionerror', 'message_max') . ': ' . $e->getMessage(),
             ];
         }
     }
 
     /**
-     * Get available models from Mistral API.
+     * Get available models from OpenRouter API.
      *
-     * @return array List of model IDs.
+     * @return array List of model data.
      */
     public function get_available_models(): array {
         try {
-            $response = $this->client->get('/v1/models');
+            // OpenRouter supports both authenticated and unauthenticated model listing.
+            // Use the public endpoint to get all available models.
+            $response = $this->client->get('https://openrouter.ai/api/v1/models', [
+                'headers' => [
+                    'HTTP-Referer' => $CFG->wwwroot ?? '',
+                    'X-Title' => 'Moodle LMS',
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                debugging('OpenRouter API returned status code: ' . $response->getStatusCode(), DEBUG_DEVELOPER);
+                return [];
+            }
+
             $body = json_decode($response->getBody()->getContents(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                debugging('Failed to decode OpenRouter models JSON: ' . json_last_error_msg(), DEBUG_DEVELOPER);
+                return [];
+            }
 
             if (isset($body['data'])) {
                 return $body;
             }
+
+            debugging('OpenRouter response does not contain "data" key', DEBUG_DEVELOPER);
         } catch (\Exception $e) {
-            debugging('Failed to get Mistral models: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            debugging('Failed to get OpenRouter models: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
+
         return [];
     }
 
     /**
-     * Transcribe an audio file using Mistral AI.
+     * Transcribe an audio file using OpenRouter (if supported by selected model).
      *
      * @param string $filepath Path to the audio file.
      * @param string|null $language Language code (optional, auto-detect if not specified).
-     * @return string Transcribed text.
+     * @return string Transcribed text or error message.
      */
     public function transcribe_audio_file(string $filepath, ?string $language = null): string {
-        global $CFG;
-
         if (!$this->is_enabled()) {
-            return get_string('mistralnotconfigured', 'message_max');
+            return get_string('openrouternotconfigured', 'message_max');
         }
 
         // Check if file exists.
@@ -333,49 +385,9 @@ class mistral_ai {
             return get_string('filenotfound', 'error');
         }
 
-        // Get model from config (use whisper model for transcription).
-        $transcriptionmodel = !empty($this->config->mistraltranscriptionmodel)
-            ? $this->config->mistraltranscriptionmodel
-            : 'voxtral-mini-latest';
-
-        try {
-            // Prepare multipart form data for file upload.
-            $multipart = [
-                [
-                    'name' => 'model',
-                    'contents' => $transcriptionmodel,
-                ],
-                [
-                    'name' => 'file',
-                    'contents' => fopen($filepath, 'r'),
-                    'filename' => basename($filepath),
-                ],
-            ];
-
-            // Add language if specified.
-            if ($language) {
-                $multipart[] = [
-                    'name' => 'language',
-                    'contents' => $language,
-                ];
-            }
-
-            $response = $this->client->post('/v1/audio/transcriptions', [
-                'multipart' => $multipart,
-            ]);
-
-            $body = json_decode($response->getBody()->getContents(), true);
-
-            if (isset($body['text'])) {
-                return trim($body['text']);
-            }
-
-            // Log error if response is unexpected.
-            debugging('Mistral transcription error: ' . json_encode($body), DEBUG_DEVELOPER);
-            return get_string('mistralerror', 'message_max');
-        } catch (\Exception $e) {
-            debugging('Mistral transcription exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
-            return get_string('mistralerror', 'message_max') . ': ' . $e->getMessage();
-        }
+        // OpenRouter doesn't have a dedicated transcription endpoint like Mistral.
+        // This is a placeholder for future implementation if/when supported.
+        debugging('OpenRouter audio transcription is not currently supported', DEBUG_DEVELOPER);
+        return get_string('openroutertranscriptionnotsupported', 'message_max');
     }
 }

@@ -24,6 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['aiprovider'] = 'AI provider';
+$string['aiprovider_desc'] = 'Select which AI provider to use for chatbot functionality (/ask command)';
+$string['aiprovider_mistral'] = 'Mistral AI';
+$string['aiprovider_openrouter'] = 'OpenRouter';
 $string['alreadyconnected'] = '✅ Your MAX account is linked';
 $string['askcleared'] = '🗑️ AI conversation history cleared';
 $string['asknoquestion'] = '❓ Enter your question after /ask command
@@ -130,6 +134,24 @@ $string['mistralsettings_desc'] = 'Mistral AI integration settings for answering
 $string['mistraltranscriptionmodel'] = 'Mistral transcription model';
 $string['mistraltranscriptionmodel_desc'] = 'e.g., voxtral-mini-latest';
 $string['notconfigured'] = 'The MAX server hasn\'t been configured so MAX messages cannot be sent';
+$string['openrouterapikey'] = 'OpenRouter API key';
+$string['openrouterapikey_desc'] = 'Get your API key at https://openrouter.ai/keys';
+$string['openrouterconnectionerror'] = 'Error connecting to OpenRouter';
+$string['openrouterconnectionok'] = 'Successfully connected to OpenRouter';
+$string['openroutererror'] = 'Error getting response from AI';
+$string['openroutermaxtokens'] = 'Max tokens';
+$string['openroutermaxtokens_desc'] = 'Maximum number of tokens in the response';
+$string['openroutermodel'] = 'OpenRouter model';
+$string['openroutermodel_desc'] = 'e.g., meta-llama/llama-3-8b-instruct:free (free), google/gemma-2-9b-it:free (free), openai/gpt-4o-mini (paid)';
+$string['openrouternotconfigured'] = 'AI assistant is not configured';
+$string['openrouterprompt'] = 'System prompt';
+$string['openrouterprompt_default'] = 'You are a helpful assistant for the Moodle educational platform. Answer user questions briefly and to the point.';
+$string['openrouterprompt_desc'] = 'Instructions for the AI assistant';
+$string['openroutersettings'] = 'OpenRouter (chatbot)';
+$string['openroutersettings_desc'] = 'OpenRouter integration settings for answering user questions via /ask command. OpenRouter provides access to multiple AI models from different providers.';
+$string['openroutertemperature'] = 'Temperature';
+$string['openroutertemperature_desc'] = 'Controls randomness: lower values make output more focused, higher values more creative (0.0-2.0)';
+$string['openroutertranscriptionnotsupported'] = 'Audio transcription is not currently supported by OpenRouter';
 
 $string['parse_html'] = 'HTML format';
 $string['parse_text'] = 'Text only';

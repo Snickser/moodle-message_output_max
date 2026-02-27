@@ -12,3 +12,4 @@ This plugin provides Moodle messaging provider for MAX.
 - Webhook mode (experimental!!)
 - BotMode functional (info, courses list, events, etc.).
 - Mistral.ai integration
+- OpenRouter.ai integration

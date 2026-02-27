@@ -38,6 +38,7 @@ if ($ADMIN->fulltree) {
     $botname = $maxmanager->config('sitebotname');
     $botusername = $maxmanager->config('sitebotusername');
     $mistralapikey = $maxmanager->config('mistralapikey');
+    $openrouterapikey = $maxmanager->config('openrouterapikey');
 
     if (empty($sitebotsecret)) {
         $sitebotsecret = bin2hex(random_bytes(32));
@@ -277,6 +278,29 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_heading(
+        'message_max_ai',
+        get_string('aiprovider', 'message_max'),
+        null,
+    ));
+
+    $options = [
+    '' => get_string('no'),
+    ];
+    if (!empty($openrouterapikey)) {
+        $options['openrouter'] = get_string('aiprovider_openrouter', 'message_max');
+    }
+    if (!empty($mistralapikey)) {
+        $options['mistral'] = get_string('aiprovider_mistral', 'message_max');
+    }
+    $settings->add(new admin_setting_configselect(
+        'message_max/aiprovider',
+        get_string('aiprovider', 'message_max'),
+        get_string('aiprovider_desc', 'message_max'),
+        '',
+        $options
+    ));
+
+    $settings->add(new admin_setting_heading(
         'message_max_mistral',
         get_string('mistralsettings', 'message_max'),
         get_string('mistralsettings_desc', 'message_max'),
@@ -297,12 +321,17 @@ if ($ADMIN->fulltree) {
     if ($mistralapikey) {
         $mistral = new \message_max\mistral_ai();
         $models = $mistral->get_available_models();
+        $sortedmodels = [];
         foreach ($models['data'] as $key => $value) {
             if (!$value['capabilities']['completion_chat']) {
                 continue;
             }
-            $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
+            $sortedmodels[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
         }
+        // Sort models alphabetically.
+        asort($sortedmodels);
+        // Merge with default option first.
+        $options = array_merge($options, $sortedmodels);
     }
 
     $settings->add(new admin_setting_configselect(
@@ -317,12 +346,17 @@ if ($ADMIN->fulltree) {
     '' => get_string('default'),
     ];
     if ($mistralapikey) {
+        $sortedmodels = [];
         foreach ($models['data'] as $key => $value) {
             if (!$value['capabilities']['audio_transcription']) {
                 continue;
             }
-            $options[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
+            $sortedmodels[$value['id']] = $value['id'] . ' (' . $value['description'] . ')';
         }
+        // Sort models alphabetically.
+        asort($sortedmodels);
+        // Merge with default option first.
+        $options = array_merge($options, $sortedmodels);
     }
     $settings->add(new admin_setting_configselect(
         'message_max/mistraltranscriptionmodel',
@@ -337,6 +371,70 @@ if ($ADMIN->fulltree) {
         get_string('mistralprompt', 'message_max'),
         get_string('mistralprompt_desc', 'message_max'),
         get_string('mistralprompt_default', 'message_max'),
+        PARAM_TEXT,
+    ));
+
+    $settings->add(new admin_setting_heading(
+        'message_max_openrouter',
+        get_string('openroutersettings', 'message_max'),
+        get_string('openroutersettings_desc', 'message_max'),
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/openrouterapikey',
+        get_string('openrouterapikey', 'message_max'),
+        get_string('openrouterapikey_desc', 'message_max'),
+        '',
+        PARAM_TEXT,
+        40
+    ));
+
+    $options = [
+    '' => get_string('default'),
+    ];
+    if ($openrouterapikey) {
+        $openrouter = new \message_max\openrouter_ai();
+        $models = $openrouter->get_available_models();
+        $sortedmodels = [];
+        foreach ($models['data'] as $key => $value) {
+            $sortedmodels[$value['id']] = $value['id'] . ' (' . $value['name'] . ')';
+        }
+        // Sort models alphabetically.
+        asort($sortedmodels);
+        // Merge with default option first.
+        $options = array_merge($options, $sortedmodels);
+    }
+    $settings->add(new admin_setting_configselect(
+        'message_max/openroutermodel',
+        get_string('openroutermodel', 'message_max'),
+        get_string('openroutermodel_desc', 'message_max'),
+        'meta-llama/llama-3-8b-instruct:free',
+        $options
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/openroutertemperature',
+        get_string('openroutertemperature', 'message_max'),
+        get_string('openroutertemperature_desc', 'message_max'),
+        0.3,
+        PARAM_FLOAT,
+        10
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/openroutermaxtokens',
+        get_string('openroutermaxtokens', 'message_max'),
+        get_string('openroutermaxtokens_desc', 'message_max'),
+        2048,
+        PARAM_INT,
+        10
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'message_max/openrouterprompt',
+        get_string('openrouterprompt', 'message_max'),
+        get_string('openrouterprompt_desc', 'message_max'),
+        get_string('openrouterprompt_default', 'message_max'),
         PARAM_TEXT,
     ));
 

@@ -359,19 +359,31 @@ if (
         $mx->send_message($text, $userid);
     } else if (strpos($text, '/ask') === 0 && $userid) {
         $question = trim(substr($text, 5));
-
         if (empty($question)) {
             $mx->send_message(get_string('asknoquestion', 'message_max'), $userid);
         } else {
-            // Check if Mistral AI is configured.
-            if (empty($config->mistralapikey)) {
-                $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
+            if ($config->aiprovider === 'mistral') {
+                // Check if Mistral AI is configured.
+                if (empty($config->mistralapikey)) {
+                    $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
+                } else {
+                    $ai = new \message_max\mistral_ai();
+                }
+            } else if ($config->aiprovider === 'openrouter') {
+                // Check if OpenRouter AI is configured.
+                if (empty($config->openrouterapikey)) {
+                    $mx->send_message(get_string('openrouternotconfigured', 'message_max'), $userid);
+                } else {
+                    $ai = new \message_max\openrouter_ai();
+                }
             } else {
-                $mistral = new \message_max\mistral_ai();
+                $mx->send_message(get_string('ainotconfigured', 'message_max'), $userid);
+            }
+            if (isset($ai)) {
                 // Send temporary "thinking" message.
                 $response = $mx->send_temp_message($chatid);
                 // Send request to Mistral AI with conversation history.
-                $answer = $mistral->chat($question, $userid);
+                $answer = $ai->chat($question, $userid);
                 $mx->send_message($answer, $userid, true);
                 if (isset($response->message->body->mid)) {
                     $mx->delete_message($response->message->body->mid);
@@ -380,11 +392,23 @@ if (
         }
     } else if (strpos($text, '/clear') === 0 && $userid) {
         // Clear AI conversation history.
-        if (empty($config->mistralapikey)) {
-            $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
+        if ($config->aiprovider === 'mistral') {
+            if (empty($config->mistralapikey)) {
+                $mx->send_message(get_string('mistralnotconfigured', 'message_max'), $userid);
+            } else {
+                $ai = new \message_max\mistral_ai();
+            }
+        } else if ($config->aiprovider === 'openrouter') {
+            if (empty($config->openrouterapikey)) {
+                $mx->send_message(get_string('openrouternotconfigured', 'message_max'), $userid);
+            } else {
+                $ai = new \message_max\openrouter_ai();
+            }
         } else {
-            $mistral = new \message_max\mistral_ai();
-            $mistral->clear_history($userid);
+            $mx->send_message(get_string('ainotconfigured', 'message_max'), $userid);
+        }
+        if (isset($ai)) {
+            $ai->clear_history($userid);
             $mx->send_message(get_string('askcleared', 'message_max'), $userid);
         }
     } else if (strpos($text, '/info') === 0) {
