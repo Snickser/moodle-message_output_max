@@ -139,25 +139,30 @@ function message_max_private_answer($mx, $botname, $chatid, $messageid, $start =
     }
 
     // Build inline keyboard with link to bot.
-    $replymarkup = [
-        'inline_keyboard' => [
-            [
-                [
+    $buttons[] = [[
+        'type' => 'link',
                     'text' => get_string('proceed'),
-                    'url' => 'https://t.me/' . $botname . $start,
-                ],
-            ],
-        ],
+                    'url' => 'https://max.ru/' . $botname . $start,
+    ]];
+
+    $keyboard = [
+        'type' => 'inline_keyboard',
+        'payload' => ['buttons' => $buttons],
     ];
 
-    $options = [
+    $params = [
         'text' => $text,
+        'link' => ['type' => 'reply', 'mid' => $messageid],
+        'attachments' => [$keyboard],
     ];
-    return $mx->send_api_command(
-        'messages?user_id=' . $chatid,
-        $options,
+
+    $response = $mx->send_api_command(
+        'messages?chat_id=' . $chatid,
+        $params,
         1
     );
+
+    return $response;
 }
 
 /**

@@ -156,16 +156,16 @@ if (
     // Process incoming message from user.
     // Sanitize input data.
     $fromid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
-    $chatid = clean_param($data->message->sender->user_id ?? null, PARAM_INT);
+    $chatid = clean_param($data->message->recipient->chat_id ?? null, PARAM_INT);
     $text = clean_param($data->message->body->text ?? null, PARAM_TEXT);
     $voice = clean_param($data->message->body->attachments[0]->payload->url ?? null, PARAM_TEXT);
     $username = clean_param($data->message->sender->name ?? null, PARAM_TEXT);
     $firstname = clean_param($data->message->from->first_name ?? null, PARAM_TEXT);
+    $chattype = clean_param($data->message->recipient->chat_type ?? null, PARAM_TEXT);
 
     // Load user state from database.
-    $record = $DB->get_record('message_max', ['chatid' => $chatid]);
+    $record = $DB->get_record('message_max', ['chatid' => $fromid]);
     $lastmsgid = clean_param($data->message->body->mid ?? null, PARAM_TEXT);
-    $messageid = clean_param($data->message->message_id ?? null, PARAM_TEXT);
     $lastdata = $text;
     $step = 'command';
 
@@ -188,12 +188,17 @@ if (
         force_current_language($lang);
     }
 
-    if ($chatid < 0) {
+    $pattern = '/^@' . preg_quote($config->sitebotusername, '/') . '\s+/u';
+    if ($chattype == 'chat' && preg_match($pattern, $text)) {
         if ($user) {
-            message_max_private_answer($mx, $config->sitebotusername, $chatid, $messageid);
+            message_max_private_answer($mx, $config->sitebotusername, $chatid, $lastmsgid);
+            $text = preg_replace($pattern, '', $text);
         } else {
-            message_max_private_answer($mx, $config->sitebotusername, $chatid, $messageid, "?start=0");
+            message_max_private_answer($mx, $config->sitebotusername, $chatid, $lastmsgid, "?start=0");
+            $text = '';
         }
+    } else if ($chattype == 'chat') {
+        $text = '';
     }
 
     if (strpos($text, '/start') === 0) {
@@ -381,10 +386,13 @@ if (
             }
             if (isset($ai)) {
                 // Send temporary "thinking" message.
-                $response = $mx->send_temp_message($chatid);
+                $response = $mx->send_temp_message($fromid);
+                // Shows the typing indicator.
+                $mx->send_api_command('chats/' . $chatid . '/actions', ["action" => "typing_on"], 1);
                 // Send request to Mistral AI with conversation history.
                 $answer = $ai->chat($question, $userid);
                 $mx->send_message($answer, $userid, true);
+                // Delete temporary message.
                 if (isset($response->message->body->mid)) {
                     $mx->delete_message($response->message->body->mid);
                 }
@@ -418,7 +426,7 @@ if (
             ($CFG->servicespage ? "\n⭐ " . $CFG->servicespage : ''),
             'format' => 'HTML',
             ];
-            $response = $mx->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
+            $response = $mx->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
     } else if (strpos($text, '/faq') === 0) {
         $params = [
             'text' => get_string('botfaq', 'message_max') .
@@ -426,7 +434,7 @@ if (
             format_string(get_string('botfaqtext', 'message_max'), true),
             'format' => 'HTML',
             ];
-            $response = $mx->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
+            $response = $mx->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
     } else if (strpos($text, '/userid') === 0 && $userid) {
         $buttons = [];
         foreach ($userids as $id) {
@@ -461,7 +469,7 @@ if (
         'payload' => ['buttons' => $buttons],
         ];
         $response = $mx->send_api_command(
-            'messages?user_id=' . $chatid,
+            'messages?user_id=' . $fromid,
             [
             'text' => '📊 ' . get_string('selectacourse'),
             'attachments' => [$keyboard],
@@ -483,7 +491,7 @@ if (
         'payload' => ['buttons' => $buttons],
         ];
         $response = $mx->send_api_command(
-            'messages?user_id=' . $chatid,
+            'messages?user_id=' . $fromid,
             [
             'text' => '📚 ' . get_string('selectacourse') . ($buttons ? null : "\n\n" . get_string('none')),
             'attachments' => [$keyboard],
@@ -538,7 +546,7 @@ if (
             ],
         ]];
         $response = $mx->send_api_command(
-            'messages?user_id=' . $chatid . '&disable_link_preview=true',
+            'messages?user_id=' . $fromid . '&disable_link_preview=true',
             [
             'text' => $text,
             'format' => 'HTML',
@@ -620,7 +628,7 @@ if (
         if ($buff) {
             $params['attachments'] = [$keyboard];
         }
-        $response = $mx->send_api_command('messages?user_id=' . $chatid . '&disable_link_preview=true', $params, 1);
+        $response = $mx->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
     } else if (isset($data->message->successful_payment)) {
         http_response_code(200);
         echo "OK";
@@ -637,7 +645,7 @@ if (
         ]],
         ]];
         $response = $mx->send_api_command(
-            'messages?user_id=' . $chatid,
+            'messages?user_id=' . $fromid,
             [
             'text' => '🏷 ' . get_string('eventname', 'calendar') . ':' . PHP_EOL . $text,
             'attachments' => [$keyboard],
@@ -665,7 +673,7 @@ if (
         ]],
         ]];
         $response = $mx->send_api_command(
-            'messages?user_id=' . $chatid,
+            'messages?user_id=' . $fromid,
             [
             'text' => '⏱️ ' . get_string('eventduration', 'calendar') . ' ' . $timestamp . ' ' . get_string("minutes"),
             'attachments' => [$keyboard],
@@ -696,7 +704,7 @@ if (
         ]],
         ]];
         $response = $mx->send_api_command(
-            'messages?user_id=' . $chatid,
+            'messages?user_id=' . $fromid,
             [
             'text' => '⏰ ' . userdate($timestamp),
             'attachments' => [$keyboard],
@@ -745,7 +753,9 @@ if (
         $lastdata = $record->lastdata;
     } else if ($voice && !empty($config->mistralapikey) && $data->message->body->attachments[0]->type == "audio" && $userid) {
         // Send temporary "thinking" message.
-        $tmpmsg = $mx->send_temp_message($chatid);
+        $tmpmsg = $mx->send_temp_message($fromid);
+        // Shows the typing indicator.
+        $mx->send_api_command('chats/' . $chatid . '/actions', ["action" => "typing_on"], 1);
         // Get voice file.
         $curl = new curl();
         $file = $curl->get($voice);
@@ -764,7 +774,7 @@ if (
         }
     } else if ($text && $userid) {
         $response = message_max_send_menu($mx, $fromid, get_string('botidontknow', 'message_max'));
-    } else if ($text) {
+    } else if ($text && $chattype == 'dialog') {
         $mx->send_api_command(
             'messages?user_id=' . $fromid,
             [
@@ -785,7 +795,7 @@ if (
         $DB->update_record('message_max', $record);
     } else {
         $record = new stdClass();
-        $record->chatid       = $chatid;
+        $record->chatid       = $fromid;
         $record->lastmsgid    = $lastmsgid;
         $record->lastdata     = $lastdata;
         $record->laststep     = $step;
@@ -796,10 +806,10 @@ if (
     // Process callback query (inline keyboard button press).
     // Sanitize input data.
     $fromid = clean_param($data->callback->user->user_id, PARAM_INT);
-    $chatid = $fromid;
+    $chatid = clean_param($data->message->recipient->chat_id ?? null, PARAM_INT);
 
     // Load user state from database.
-    $record = $DB->get_record('message_max', ['chatid' => $chatid]);
+    $record = $DB->get_record('message_max', ['chatid' => $fromid]);
     $lastmsgid = clean_param($data->message->body->mid, PARAM_TEXT);
     $lastdata = clean_param($data->callback->payload, PARAM_TEXT);
     $step = 'callback';
@@ -1285,16 +1295,18 @@ if (
                     $wait = null;
                     while ($response->code == 'attachment.not.ready') {
                         $i++;
-                        $response = $mx->send_api_command('messages?user_id=' . $chatid, [
+                        $response = $mx->send_api_command('messages?user_id=' . $fromid, [
                             'text' => $template->get_name() . "\n\n" .
                             get_string('botcertyour', 'message_max'),
                             'attachments' => [['type' => 'file', 'payload' => ['token' => $token->token]]],
                         ], 1);
 
                         if ($i == 1 && $response->code == 'attachment.not.ready') {
-                            $wait = $mx->send_api_command('messages?user_id=' . $chatid, [
+                            $wait = $mx->send_api_command('messages?user_id=' . $fromid, [
                             'text' => get_string('wait', 'message_max'),
                             ], 1);
+                            // Shows the upload indicator.
+                            $mx->send_api_command('chats/' . $chatid . '/actions', ["action" => "sending_file"], 1);
                         }
 
                         if ($i > 6 || $response->code != 'attachment.not.ready') {
@@ -1318,7 +1330,7 @@ if (
             }
 
             $response = $mx->send_api_command(
-                'messages?user_id=' . $chatid,
+                'messages?user_id=' . $fromid,
                 [
                 'text' => get_string('botcertselect', 'message_max'),
                 'attachments' => [$keyboard],
@@ -1349,7 +1361,7 @@ if (
         $DB->update_record('message_max', $record);
     } else {
         $record = new stdClass();
-        $record->chatid       = $chatid;
+        $record->chatid       = $fromid;
         $record->lastmsgid    = $lastmsgid;
         $record->lastdata     = $lastdata;
         $record->laststep     = $step;
