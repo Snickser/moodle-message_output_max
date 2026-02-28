@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['ainotconfigured'] = '❌ AI assistant is not configured';
 $string['aiprovider'] = 'AI provider';
 $string['aiprovider_desc'] = 'Select which AI provider to use for chatbot functionality (/ask command)';
 $string['aiprovider_mistral'] = 'Mistral AI';
@@ -46,7 +47,7 @@ $string['botcertselect'] = '📥 Select a certificate';
 $string['botcertyour'] = '💾 Your certificate';
 $string['botclear'] = '/clear - clear AI conversation history';
 $string['botenrols'] = '🎓 Participation in courses:';
-$string['botentertext'] = '✏ ️ Enter your message text';
+$string['botentertext'] = '✏️ Enter your message text';
 $string['botevents'] = '🗓 Upcoming Events:
 
 ';
@@ -66,7 +67,7 @@ $string['bothelp_anonymous'] = '👓 Helps
 $string['botidontknow'] = 'I dont know what this is 🤷🏻 /help';
 $string['botlang'] = '🈯 Select language ({$a})';
 $string['botmessagehelp'] = '/message - send group message';
-$string['botmsgall'] = 'Тo all students';
+$string['botmsgall'] = 'To all students';
 $string['botpay'] = '🏦 Select amount {$a}';
 $string['botpaydesc'] = 'To support the learning platform';
 $string['botpaytitle'] = 'Donation 🕉';
@@ -95,6 +96,7 @@ Once completed, come back to this page and click "Save changes". Full documentat
 $string['connectme'] = '<br><p style="color: blue;"><font size=+1><b>👉 Connect my account to MAX 👈</b></font></p>';
 $string['connectmemenu'] = 'Connect my account to MAX';
 $string['customfield'] = 'If there is an additional user profile field "max_username", it will be filled in automatically.';
+$string['default'] = 'Default';
 $string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})</br>
 You can find new versions of the plugin at <a href=https://github.com/Snickser/moodle-message_output_max>GitHub.com</a>
 <img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_max.svg"><br>
@@ -111,7 +113,6 @@ $string['firstregister'] = 'First, register on the website and enable notificati
 $string['fullmessagehtml'] = 'Use fullmessagehtml';
 $string['groupinvite'] = '⚠️ Please join our news channel to stay up to date with news and events 👉 <a href="{$a->link}">{$a->title}</a>';
 $string['groupinvitedone'] = 'You have been added to our news channel <a href="{$a->link}">{$a->title}</a>';
-
 $string['maxbottoken'] = 'MAX bot token';
 $string['maxchatid'] = 'MAX chat id';
 $string['maxlog'] = 'Enable logging';
@@ -151,8 +152,6 @@ $string['openroutersettings'] = 'OpenRouter (chatbot)';
 $string['openroutersettings_desc'] = 'OpenRouter integration settings for answering user questions via /ask command. OpenRouter provides access to multiple AI models from different providers.';
 $string['openroutertemperature'] = 'Temperature';
 $string['openroutertemperature_desc'] = 'Controls randomness: lower values make output more focused, higher values more creative (0.0-2.0)';
-$string['openroutertranscriptionnotsupported'] = 'Audio transcription is not currently supported by OpenRouter';
-
 $string['parse_html'] = 'HTML format';
 $string['parse_text'] = 'Text only';
 $string['parsemode'] = 'Parse mode';
@@ -187,8 +186,8 @@ $string['unsetwebhooksuccess'] = 'Webhook removed';
 $string['usehelp'] = 'Use /help';
 $string['usernamefield'] = 'Username save field';
 $string['usernamefield_desc'] = 'Default short name for extended user profile field is "max_username".';
-
 $string['wait'] = '🕑 Please wait, the file is loading...';
 $string['waitai'] = '⏳ Preparing an answer...';
+$string['warning'] = 'Warning';
 $string['warnreport_desc'] = 'Display warning before print report.';
 $string['welcome'] = '✅ Your account has been successfully linked!';
