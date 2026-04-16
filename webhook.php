@@ -381,6 +381,16 @@ if (
                 } else {
                     $ai = new \message_max\openrouter_ai();
                 }
+            } else if ($config->aiprovider === 'remote') {
+                $curl = new curl();
+                $options = [
+                'CURLOPT_TIMEOUT' => 30,
+                'CURLOPT_HTTPHEADER' => [
+                $config->airemoteheader . ': ' . $config->airemotekey,
+                ],
+                ];
+                $params = ['text' => $question, 'chat_id' => $chatid, 'prompt' => $config->airemoteprompt];
+                $curl->post($config->airemoteurl, $params, $options);
             } else {
                 $mx->send_message(get_string('ainotconfigured', 'message_max'), $userid);
             }
@@ -412,6 +422,16 @@ if (
             } else {
                 $ai = new \message_max\openrouter_ai();
             }
+        } else if ($config->aiprovider === 'remote') {
+            $curl = new curl();
+            $options = [
+            'CURLOPT_TIMEOUT' => 30,
+            'CURLOPT_HTTPHEADER' => [
+                $config->airemoteheader . ': ' . $config->airemotekey,
+            ],
+            ];
+            $params = ['text' => '/clear', 'chat_id' => $chatid, 'prompt' => $config->airemoteprompt];
+            $curl->post($config->airemoteurl, $params, $options);
         } else {
             $mx->send_message(get_string('ainotconfigured', 'message_max'), $userid);
         }
