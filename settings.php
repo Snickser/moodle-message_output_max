@@ -285,7 +285,7 @@ if ($ADMIN->fulltree) {
 
     $options = [
     '' => get_string('no'),
-    'remote' => get_string('airemote', 'message_telegram'),
+    'remote' => get_string('airemote', 'message_max'),
     ];
     if (!empty($openrouterapikey)) {
         $options['openrouter'] = get_string('aiprovider_openrouter', 'message_max');

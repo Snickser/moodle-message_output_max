@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026022821;
+$plugin->version   = 2026041621;
 $plugin->requires  = 2016111500;
 $plugin->component = 'message_max';
-$plugin->release   = '0.12';
+$plugin->release   = '0.13';
 $plugin->maturity  = MATURITY_STABLE;

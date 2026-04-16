@@ -787,7 +787,7 @@ if (
             // Send temporary "thinking" message.
             $tmpmsg = $mx->send_temp_message($fromid);
             // Shows the typing indicator.
-    	    $mx->send_api_command('chats/' . $chatid . '/actions', ["action" => "typing_on"], 1);
+            $mx->send_api_command('chats/' . $chatid . '/actions', ["action" => "typing_on"], 1);
             // Send request to Mistral AI.
             $mistral = new \message_max\mistral_ai();
             $answer = $mistral->chat($text, $userid);
