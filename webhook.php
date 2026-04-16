@@ -773,7 +773,32 @@ if (
             $mx->delete_message($tmpmsg->message->body->mid);
         }
     } else if ($text && $userid) {
-        $response = message_max_send_menu($mx, $fromid, get_string('botidontknow', 'message_max'));
+        if ($config->aiprovider == 'remote' && !empty($config->airemotekey)) {
+            $curl = new curl();
+            $options = [
+            'CURLOPT_TIMEOUT' => 30,
+            'CURLOPT_HTTPHEADER' => [
+                $config->airemoteheader . ': ' . $config->airemotekey,
+            ],
+            ];
+            $params = ['text' => $text, 'chat_id' => $chatid, 'prompt' => $config->airemoteprompt];
+            $curl->post($config->airemoteurl, $params, $options);
+        } else if ($config->aiprovider == 'mistral' && !empty($config->mistralapikey)) {
+            // Send temporary "thinking" message.
+            $tmpmsg = $mx->send_temp_message($fromid);
+            // Shows the typing indicator.
+    	    $mx->send_api_command('chats/' . $chatid . '/actions', ["action" => "typing_on"], 1);
+            // Send request to Mistral AI.
+            $mistral = new \message_max\mistral_ai();
+            $answer = $mistral->chat($text, $userid);
+            $mx->send_message($answer, $userid, true);
+            // Delete temp message.
+            if (isset($tmpmsg->result->message_id)) {
+                $mx->delete_message($chatid, $tmpmsg->message->body->mid);
+            }
+        } else {
+            $response = message_max_send_menu($mx, $fromid, get_string('botidontknow', 'message_max'));
+        }
     } else if ($text && $chattype == 'dialog') {
         $mx->send_api_command(
             'messages?user_id=' . $fromid,
