@@ -793,8 +793,8 @@ if (
             $answer = $mistral->chat($text, $userid);
             $mx->send_message($answer, $userid, true);
             // Delete temp message.
-            if (isset($tmpmsg->result->message_id)) {
-                $mx->delete_message($chatid, $tmpmsg->message->body->mid);
+            if (isset($tmpmsg->message->body->mid)) {
+                $mx->delete_message($tmpmsg->message->body->mid);
             }
         } else {
             $response = message_max_send_menu($mx, $fromid, get_string('botidontknow', 'message_max'));
