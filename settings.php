@@ -285,6 +285,7 @@ if ($ADMIN->fulltree) {
 
     $options = [
     '' => get_string('no'),
+    'remote' => get_string('airemote', 'message_telegram'),
     ];
     if (!empty($openrouterapikey)) {
         $options['openrouter'] = get_string('aiprovider_openrouter', 'message_max');
@@ -298,6 +299,47 @@ if ($ADMIN->fulltree) {
         get_string('aiprovider_desc', 'message_max'),
         '',
         $options
+    ));
+
+    $settings->add(new admin_setting_heading(
+        'message_max_airemote',
+        get_string('airemote', 'message_max'),
+        null,
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/airemoteheader',
+        get_string('airemoteheader', 'message_max'),
+        get_string('airemoteheader_desc', 'message_max'),
+        'x-api-moodle-max-bot-token',
+        PARAM_TEXT,
+        40
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/airemotekey',
+        get_string('airemotekey', 'message_max'),
+        get_string('airemotekey_desc', 'message_max'),
+        '',
+        PARAM_TEXT,
+        40
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/airemoteurl',
+        get_string('airemoteurl', 'message_max'),
+        get_string('airemoteurl_desc', 'message_max'),
+        '',
+        PARAM_TEXT,
+        40
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'message_max/airemoteprompt',
+        get_string('airemoteprompt', 'message_max'),
+        get_string('airemoteprompt_desc', 'message_max'),
+        get_string('airemoteprompt_default', 'message_max'),
+        PARAM_TEXT,
     ));
 
     $settings->add(new admin_setting_heading(
