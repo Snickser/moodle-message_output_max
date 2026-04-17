@@ -11,6 +11,6 @@ This plugin provides Moodle messaging provider for MAX.
 - Invite to a news channel or group.
 - Webhook mode (experimental!!)
   - BotMode functional (info, courses list, events, etc.).
-  - Mistral.ai integration (include voice transcribing)
-  - OpenRouter.ai integration
+  - Mistral.AI integration (chat and voice transcribing).
+  - OpenRouter.AI integration (chat).
   - Remote webhook AI integration (like n8n)
