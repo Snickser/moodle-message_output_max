@@ -128,14 +128,22 @@
     }
 
     function openBotAction(payload) {
-      const botName = getBotName();
+      let botName = getBotName();
+
+      // Safety cleanup in case platform appends extra query text oddly
+      if (botName.includes("?")) {
+        botName = botName.split("?")[0];
+      }
+      if (botName.includes("&")) {
+        botName = botName.split("&")[0];
+      }
 
       if (!botName) {
         alert("Имя бота не найдено");
         return;
       }
 
-      const url = `https://max.ru/${botName}&start=${encodeURIComponent(payload)}`;
+      const url = `https://max.ru/${botName}?start=${encodeURIComponent(payload)}`;
 
       if (window.WebApp?.openMaxLink) {
         window.WebApp.openMaxLink(url);
