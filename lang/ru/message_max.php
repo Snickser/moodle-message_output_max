@@ -95,11 +95,12 @@ $string['donate'] = '<div>Версия плагина: {$a->release} ({$a->versi
 Вы можете найти новые версии плагина на <a href=https://github.com/Snickser/moodle-message_output_max>GitHub.com</a>
 <img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_max.svg"><br>
 Пожалуйста, отправьте мне немного <a href="https://yoomoney.ru/fundraise/143H2JO3LLE.240720">доната</a>😊</div>
+<iframe src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=143H2JO3LLE.240720"
+width="330" height="35" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
 TON UQA1vhoJmBLgzTHKbJuuscr6UPwnP9TEH3eJYFKIiVgUIaro<br>
 BTC 1GFTTPCgRTC8yYL1gU7wBZRfhRNRBdLZsq<br>
 TRX TRGMc3b63Lus6ehLasbbHxsb2rHky5LbPe<br>
-<iframe src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=143H2JO3LLE.240720"
-width="330" height="50" frameborder="0" allowtransparency="true" scrolling="no"></iframe>';
+';
 $string['enter'] = 'Введите';
 $string['enter_phone'] = 'Для лучшего взаимодействия с кураторами, пожалуйста, укажите номер своего мобильного телефона в профиле на портале, или нажмите кнопку внизу.';
 $string['enter_time'] = 'Дата и время указываются в мнемоническом или в одном из стандартных форматов, например: YY-MM-DD HH:MM';

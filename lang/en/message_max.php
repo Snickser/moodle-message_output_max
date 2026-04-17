@@ -115,11 +115,12 @@ $string['donate'] = '<div>Plugin version: {$a->release} ({$a->versiondisk})</br>
 You can find new versions of the plugin at <a href=https://github.com/Snickser/moodle-message_output_max>GitHub.com</a>
 <img src="https://img.shields.io/github/v/release/Snickser/moodle-message_output_max.svg"><br>
 Please send me some <a href="https://yoomoney.ru/fundraise/143H2JO3LLE.240720">donate</a>😊</div>
+<iframe src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=143H2JO3LLE.240720"
+width="330" height="35" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
 TON UQA1vhoJmBLgzTHKbJuuscr6UPwnP9TEH3eJYFKIiVgUIaro<br>
 BTC 1GFTTPCgRTC8yYL1gU7wBZRfhRNRBdLZsq<br>
 TRX TRGMc3b63Lus6ehLasbbHxsb2rHky5LbPe<br>
-<iframe src="https://yoomoney.ru/quickpay/fundraise/button?billNumber=143H2JO3LLE.240720"
-width="330" height="50" frameborder="0" allowtransparency="true" scrolling="no"></iframe>';
+';
 $string['enter'] = 'Enter';
 $string['enter_phone'] = 'For better interaction with curators, please provide your mobile phone number.';
 $string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';
