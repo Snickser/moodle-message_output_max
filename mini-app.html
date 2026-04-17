@@ -105,25 +105,33 @@
   </div>
 
   <script>
-    const BOT_NAME = "id770405866923_bot";
+    function getBotName() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromUrl = urlParams.get("bot");
+      if (fromUrl) return fromUrl;
 
-    function openBot() {
-      const url = `https://max.ru/${BOT_NAME}`;
-      if (window.WebApp && typeof window.WebApp.openMaxLink === "function") {
-        window.WebApp.openMaxLink(url);
-      } else {
-        window.location.href = url;
-      }
+      const startParam = window.WebApp?.initDataUnsafe?.start_param || "";
+      const startParams = new URLSearchParams(startParam);
+      return startParams.get("bot");
     }
 
     function openBotAction(payload) {
-      const url = `https://max.ru/${BOT_NAME}?start=${encodeURIComponent(payload)}`;
-      if (window.WebApp && typeof window.WebApp.openMaxLink === "function") {
+      const botName = getBotName();
+
+      if (!botName) {
+        alert("Имя бота не найдено");
+        return;
+      }
+
+      const url = `https://max.ru/${botName}?start=${encodeURIComponent(payload)}`;
+
+      if (window.WebApp?.openMaxLink) {
         window.WebApp.openMaxLink(url);
       } else {
         window.location.href = url;
       }
     }
   </script>
+
 </body>
 </html>
