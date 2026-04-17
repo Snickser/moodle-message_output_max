@@ -10,7 +10,7 @@ This plugin provides Moodle messaging provider for MAX.
 - If there is an additional custom profile field "max_username", it will be filled in automatically.
 - Invite to a news channel or group.
 - Webhook mode (experimental!!)
-- BotMode functional (info, courses list, events, etc.).
-- Mistral.ai integration (include voice transcribing)
-- OpenRouter.ai integration
-- Webhook AI integration (like n8n)
+  - BotMode functional (info, courses list, events, etc.).
+  - Mistral.ai integration (include voice transcribing)
+  - OpenRouter.ai integration
+  - Webhook AI integration (like n8n)
