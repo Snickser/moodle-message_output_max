@@ -105,6 +105,7 @@
   </div>
 
   <script>
+
     function getBotName() {
       const urlParams = new URLSearchParams(window.location.search);
       const fromUrl = urlParams.get("bot");
@@ -115,6 +116,17 @@
       return startParams.get("bot");
     }
 
+    function openBot() {
+      const botName = getBotName();
+
+      const url = `https://max.ru/${botName}`;
+      if (window.WebApp?.openMaxLink) {
+        window.WebApp.openMaxLink(url);
+      } else {
+        window.location.href = url;
+      }
+    }
+
     function openBotAction(payload) {
       const botName = getBotName();
 
@@ -123,7 +135,7 @@
         return;
       }
 
-      const url = `https://max.ru/${botName}?start=${encodeURIComponent(payload)}`;
+      const url = `https://max.ru/${botName}&start=${encodeURIComponent(payload)}`;
 
       if (window.WebApp?.openMaxLink) {
         window.WebApp.openMaxLink(url);
