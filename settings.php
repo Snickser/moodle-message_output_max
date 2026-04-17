@@ -408,6 +408,24 @@ if ($ADMIN->fulltree) {
         $options
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'message_max/mistraltemperature',
+        get_string('aitemperature', 'message_max'),
+        get_string('aitemperature_desc', 'message_max'),
+        0.2,
+        PARAM_FLOAT,
+        50
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'message_max/mistralmaxtokens',
+        get_string('aimaxtokens', 'message_max'),
+        get_string('aimaxtokens_desc', 'message_max'),
+        2048,
+        PARAM_INT,
+        10
+    ));
+
     $settings->add(new admin_setting_configtextarea(
         'message_max/mistralprompt',
         get_string('mistralprompt', 'message_max'),

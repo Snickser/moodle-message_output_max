@@ -783,10 +783,33 @@ if (
         file_put_contents($tempfile, $file);
         // Send request to Mistral AI.
         $mistral = new \message_max\mistral_ai();
-        $answer = $mistral->transcribe_audio_file($tempfile);
-        $mx->send_message('/ask ' . $answer, $userid);
+        $question = $mistral->transcribe_audio_file($tempfile);
         if (file_exists($tempfile)) {
             unlink($tempfile);
+        }
+        if ($question) {
+            // Send transcribed text.
+            $keyboard = [
+            'type' => 'inline_keyboard',
+            'payload' => ['buttons' => [[
+            [
+            'text' => get_string('copy'),
+            'payload' => $question,
+            'type' => 'clipboard',
+            ],
+            ]],
+            ]];
+            $mx->send_api_command(
+                'messages?chat_id=' . $chatid,
+                [
+                    'text' => $question,
+                    'link' => ['type' => 'reply', 'mid' => $lastmsgid],
+                    'attachments' => [$keyboard],
+                    ],
+                1
+            );
+        } else {
+            $mx->send_message(get_string('none'), $userid);
         }
         // Delete temp message.
         if (isset($tmpmsg->message->body->mid)) {

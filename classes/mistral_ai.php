@@ -69,7 +69,7 @@ class mistral_ai {
         $this->apikey = !empty($this->config->mistralapikey) ? $this->config->mistralapikey : '';
         $this->model = !empty($this->config->mistralmodel) ? $this->config->mistralmodel : 'mistral-medium-latest';
         $this->temperature = isset($this->config->mistraltemperature) && $this->config->mistraltemperature !== ''
-        ? (float)$this->config->mistraltemperature : 0.3;
+        ? (float)$this->config->mistraltemperature : 0.2;
         $this->maxtokens = isset($this->config->mistralmaxtokens) && $this->config->mistralmaxtokens !== ''
         ? (int)$this->config->mistralmaxtokens : 2048;
 

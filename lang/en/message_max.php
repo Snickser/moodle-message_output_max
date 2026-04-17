@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['aimaxtokens'] = 'Max tokens';
+$string['aimaxtokens_desc'] = 'Maximum number of tokens in the response';
 $string['ainotconfigured'] = '❌ AI assistant is not configured';
 $string['aiprovider'] = 'AI provider';
 $string['aiprovider_desc'] = 'Select which AI provider to use for chatbot functionality (/ask command)';
@@ -39,6 +41,8 @@ $string['airemoteprompt_default'] = 'You are a helpful assistant for the Moodle 
 $string['airemoteprompt_desc'] = 'System prompt';
 $string['airemoteurl'] = 'URL webhook';
 $string['airemoteurl_desc'] = 'URL webhook';
+$string['aitemperature'] = 'Temperature';
+$string['aitemperature_desc'] = 'Controls randomness: lower values make output more focused, higher values more creative (0.0-2.0)';
 $string['alreadyconnected'] = '✅ Your MAX account is linked';
 $string['askcleared'] = '🗑️ AI conversation history cleared';
 $string['asknoquestion'] = '❓ Enter your question after /ask command
