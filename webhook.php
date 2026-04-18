@@ -320,7 +320,7 @@ if (
         if (file_exists($CFG->dirroot . '/admin/tool/certificate/lib.php')) {
             $text .= PHP_EOL . get_string('botcertificates', 'message_max');
         }
-        if (!empty($config->mistralapikey)) {
+        if (!empty($config->aiprovider)) {
             $text .= PHP_EOL . get_string('botask', 'message_max');
             $text .= PHP_EOL . get_string('botclear', 'message_max');
         }

@@ -39,6 +39,7 @@ if ($ADMIN->fulltree) {
     $botusername = $maxmanager->config('sitebotusername');
     $mistralapikey = $maxmanager->config('mistralapikey');
     $openrouterapikey = $maxmanager->config('openrouterapikey');
+    $airemoteurl = $maxmanager->config('airemoteurl');
 
     if (empty($sitebotsecret)) {
         $sitebotsecret = bin2hex(random_bytes(32));
@@ -284,9 +285,11 @@ if ($ADMIN->fulltree) {
     ));
 
     $options = [
-    '' => get_string('no'),
-    'remote' => get_string('airemote', 'message_max'),
+    '' => get_string('disabled', 'admin'),
     ];
+    if (!empty($airemoteurl)) {
+        $options['remote'] = get_string('airemote', 'message_max');
+    }
     if (!empty($openrouterapikey)) {
         $options['openrouter'] = get_string('aiprovider_openrouter', 'message_max');
     }
