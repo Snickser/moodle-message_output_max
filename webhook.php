@@ -144,10 +144,10 @@ if (
     }
 
     if ($payload == 'help') {
-        $text = get_string('selectanaction');
+        $text = '✅ ' . get_string('selectanaction');
     }
     if ($payload == 'clear') {
-        $text = get_string('selectanaction');
+        $text = '✅ ' .get_string('selectanaction');
         $attachments = [
         [
         'type' => 'inline_keyboard',
