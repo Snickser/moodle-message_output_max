@@ -70,6 +70,12 @@
       background: #eef2ff;
       color: #1e3a8a;
     }
+
+    .meta {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -102,9 +108,29 @@
         <button class="secondary" onclick="openBot()">Открыть чат</button>
       </div>
     </div>
+    <div class="meta" id="meta"></div>
   </div>
 
   <script>
+    function isInsideMax() {
+      return Boolean(
+        window.WebApp &&
+        (
+          (typeof window.WebApp.initData === "string" && window.WebApp.initData.length > 0) ||
+          (window.WebApp.initDataUnsafe && typeof window.WebApp.initDataUnsafe === "object" && window.WebApp.initDataUnsafe.query_id)
+        )
+      );
+    }
+
+    const meta = document.getElementById("meta");
+
+    if (isInsideMax()) {
+      const platform = window.WebApp.platform || "unknown";
+      const version = window.WebApp.version || "unknown";
+      meta.textContent = `MAX • platform: ${platform} • version: ${version}`;
+    } else {
+      meta.textContent = "Открыто вне клиента MAX";
+    }
 
     function getBotName() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -151,6 +177,7 @@
         window.location.href = url;
       }
     }
+
   </script>
 
 </body>
