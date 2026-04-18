@@ -143,6 +143,28 @@ if (
         }
     }
 
+    if ($payload == 'help') {
+        $text = get_string('selectanaction');
+    }
+    if ($payload == 'clear') {
+        $text = get_string('selectanaction');
+        $attachments = [
+        [
+        'type' => 'inline_keyboard',
+        'payload' => [
+            'buttons' => [
+                [
+                    [
+                        'type' => 'message',
+                        'text' => '/clear',
+                    ],
+                ],
+            ],
+        ],
+        ],
+        ];
+    }
+
     $response = $mx->send_api_command(
         'messages?user_id=' . $fromid . '&disable_link_preview=true',
         [
