@@ -542,8 +542,10 @@ if (
         );
     } else if (strpos($text, '/enrols') === 0 && $userid) {
         $courses = enrol_get_users_courses($userid);
+        $cid = [];
         $text = '';
         foreach ($courses as $course) {
+            $cid[$course->id] = true;
             $context = context_course::instance($course->id);
             $completion = new completion_info($course);
             $progress = \core_completion\progress::get_course_progress_percentage($course, $userid) ?? 0;
@@ -551,6 +553,19 @@ if (
             $text .= PHP_EOL . '• ' . "<a href='{$url}'>" . format_string($course->fullname) . '</a>' .
             (floor($progress) ? ' (' . floor($progress) . '%)' : null);
         }
+
+        $completed = $DB->get_records_select(
+            'course_completions',
+            'userid = ?',
+            [$userid]
+        );
+        foreach ($completed as $course) {
+            if ($cid[$course->course]) {
+                continue;
+            }
+            $text .= PHP_EOL . '• ' . format_string(get_course($course->course)->fullname);
+        }
+
         if (!$courses) {
             $text = PHP_EOL . get_string('no') . PHP_EOL;
         }
