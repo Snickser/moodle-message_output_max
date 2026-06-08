@@ -267,45 +267,6 @@ if (
         } else {
             $mx->send_message('😕 ' . get_string('unknownuser'), $fromid);
         }
-    } else if (strpos($text, '/pay') === 0 && $config->sitebotpay) {
-        if (!$cost = (int)substr($text, 5)) {
-            $numbers = array_map('trim', explode(',', $config->sitebotpaycosts));
-            $buttons = array_map(function ($n) {
-                return [
-                'text' => $n,
-                'callback_data' => '/pay ' . $n,
-                ];
-            }, $numbers);
-            $keyboard = [
-            'inline_keyboard' => [ $buttons,
-            ],
-            ];
-            $params = [
-            'chat_id' => $fromid,
-            'text' => get_string('botpay', 'message_max', $config->sitebotpaycurrency),
-            'reply_markup' => json_encode($keyboard),
-            ];
-            $response = $mx->send_api_command('sendMessage', $params);
-        } else {
-            $fromid = clean_param($data->message->from->id, PARAM_INT);
-            $cost = $cost * 100;
-            $response = $mx->send_api_command('sendInvoice', [
-            "chat_id" => $fromid,
-            "title" => get_string('botpaytitle', 'message_max'),
-            "description" => get_string('botpaydesc', 'message_max'),
-            "payload" => "Donate",
-            "provider_token" => $config->sitebotpay,
-            "currency" => $config->sitebotpaycurrency,
-            "start_parameter" => "test",
-            "prices" => json_encode([
-            [
-            "label"  => get_string('botpaydesc', 'message_max'),
-            "amount" => $cost,
-            ],
-               ]),
-
-            ]);
-        }
     } else if (strpos($text, '/courses') === 0 && $userid) {
         $courses = get_courses(null, true);
         $list = '';
@@ -637,7 +598,6 @@ ORDER BY c.fullname;
             'attachments' => $keyboard,
         ];
         $response = $mx->send_api_command('messages?user_id=' . $fromid . '&disable_link_preview=true', $params, 1);
-        $response = $params;
     } else if (strpos($text, '/message') === 0 && $userid) {
         $courses = enrol_get_all_users_courses($userid, false, '*');
         $buttons = [];
@@ -1138,8 +1098,8 @@ ORDER BY c.fullname;
                 continue;
             }
             $total++;
-            $data = $info->get_data($cm, false, $userid);
-            $state = (int)$data->completionstate;
+            $tmp = $info->get_data($cm, false, $userid);
+            $state = (int)$tmp->completionstate;
             if ($state > 0) {
                 $completed++;
             }

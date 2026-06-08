@@ -101,6 +101,7 @@ class max_sender extends \core\task\scheduled_task {
                 $text .= $buff;
             }
         } else {
+            fclose($fh);
             mtrace($file . ' no file or locked');
             return true;
         }
@@ -132,8 +133,8 @@ class max_sender extends \core\task\scheduled_task {
 
         // Ckeck curl error.
         if (!empty($this->curl->errno)) {
-            fclose($fh);
             mtrace($this->curl->error);
+            fclose($fh);
             return true;
         }
 
@@ -151,15 +152,14 @@ class max_sender extends \core\task\scheduled_task {
                     [ 'name' => 'message_processor_max_chatid', 'value' => $chatid]
                 );
                 unlink($file);
-                fclose($fh);
                 mtrace('delete forbidden ' . $chatid);
             } else if (time() - filectime($file) > 3600) {
                 unlink($file);
-                fclose($fh);
                 mtrace('delete too old ' . $chatid);
             } else {
                 mtrace(serialize($response));
             }
+            fclose($fh);
             return true;
         }
     }

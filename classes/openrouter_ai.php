@@ -337,6 +337,7 @@ class openrouter_ai {
      */
     public function get_available_models(): array {
         try {
+            global $CFG;
             // OpenRouter supports both authenticated and unauthenticated model listing.
             // Use the public endpoint to get all available models.
             $response = $this->client->get('https://openrouter.ai/api/v1/models', [
