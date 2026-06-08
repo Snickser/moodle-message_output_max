@@ -546,24 +546,26 @@ if (
         $text = '';
         foreach ($courses as $course) {
             $cid[$course->id] = true;
-            $context = context_course::instance($course->id);
-            $completion = new completion_info($course);
             $progress = \core_completion\progress::get_course_progress_percentage($course, $userid) ?? 0;
             $url = $CFG->wwwroot . '/course/view.php?id=' . $course->id;
             $text .= PHP_EOL . '• ' . "<a href='{$url}'>" . format_string($course->fullname) . '</a>' .
             (floor($progress) ? ' (' . floor($progress) . '%)' : null);
         }
 
-        $completed = $DB->get_records_select(
-            'course_completions',
-            'userid = ?',
-            [$userid]
-        );
+        $sql = "
+SELECT DISTINCT c.id, c.fullname
+FROM mdl_course_modules_completion cmc
+JOIN mdl_course_modules cm ON cm.id = cmc.coursemoduleid
+JOIN mdl_course c ON c.id = cm.course
+WHERE cmc.userid = :userid
+ORDER BY c.fullname;
+";
+        $completed = $DB->get_records_sql($sql, ['userid' => $userid]);
         foreach ($completed as $course) {
-            if ($cid[$course->course]) {
+            if ($cid[$course->id]) {
                 continue;
             }
-            $text .= PHP_EOL . '• ' . format_string(get_course($course->course)->fullname);
+            $text .= PHP_EOL . '• ' . format_string(get_course($course->id)->fullname);
         }
 
         if (!$courses) {
