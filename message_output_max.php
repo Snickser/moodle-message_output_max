@@ -39,7 +39,7 @@ class message_output_max extends message_output {
     protected mixed $manager;
 
     /**
-     * Constructor to add needed properties to the Slack app.
+     * Constructor to add needed properties to the app.
      */
     public function __construct() {
         $this->manager = new message_max\manager();

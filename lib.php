@@ -105,7 +105,7 @@ function message_max_extend_navigation_user_settings($navigation, $user, $contex
         // Generate connection URL with user secret for webhook mode.
         if ($manager->config('webhook')) {
             $key = $manager->set_usersecret($USER->id);
-            $url = 'https://t.me/' . $manager->config('sitebotusername') . '?start=' . $key;
+            $url = 'https://max.ru/' . $manager->config('sitebotusername') . '?start=' . $key;
         }
 
         $navigation->add(

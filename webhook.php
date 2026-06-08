@@ -554,9 +554,9 @@ if (
 
         $sql = "
 SELECT DISTINCT c.id, c.fullname
-FROM mdl_course_modules_completion cmc
-JOIN mdl_course_modules cm ON cm.id = cmc.coursemoduleid
-JOIN mdl_course c ON c.id = cm.course
+FROM {course_modules_completion} cmc
+JOIN {course_modules} cm ON cm.id = cmc.coursemoduleid
+JOIN {course} c ON c.id = cm.course
 WHERE cmc.userid = :userid
 ORDER BY c.fullname;
 ";
