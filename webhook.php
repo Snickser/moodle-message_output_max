@@ -568,7 +568,7 @@ ORDER BY c.fullname;
             $text .= PHP_EOL . '• ' . format_string(get_course($course->id)->fullname);
         }
 
-        if (!$courses) {
+        if (!$courses && !$completed) {
             $text = PHP_EOL . get_string('no') . PHP_EOL;
         }
         $mx->send_message(get_string('botenrols', 'message_max') . PHP_EOL . $text, $userid);
