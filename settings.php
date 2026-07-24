@@ -113,8 +113,8 @@ if ($ADMIN->fulltree) {
         '' => get_string('no'),
     ];
     $chats = $maxmanager->send_api_command('chats');
-    if ($chats !== false) {
-        foreach ($chats->chats as $key => $value) {
+    if (isset($chats->chats) && is_iterable($chats->chats)) {
+        foreach ($chats->chats as $value) {
             if ($value->status == 'active') {
                 $options[$value->chat_id] = $value->title;
             }
