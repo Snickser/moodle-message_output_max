@@ -57,7 +57,7 @@ if ($config->maxwebhookdump) {
 }
 
 // Validate webhook secret token - main security check.
-if (!isset($headers['X-Max-Bot-Api-Secret']) || $headers['X-Max-Bot-Api-Secret'] != $config->sitebotsecret) {
+if (!isset($headers['X-Max-Bot-Api-Secret']) || !hash_equals($config->sitebotsecret, $headers['X-Max-Bot-Api-Secret'])) {
     http_response_code(200);
     echo "OK";
     die;

@@ -49,7 +49,7 @@ if ($action == 'setwebhook') {
     redirect(new moodle_url('/admin/settings.php', ['section' => 'messagesettingmax']), $message);
 } else if ($action == 'removechatid') {
     $userid = optional_param('userid', 0, PARAM_INT);
-    if ($userid != 0) {
+    if ($userid !== 0) {
         $message = $maxmanager->remove_chatid($userid);
     }
     redirect(new moodle_url('/message/notificationpreferences.php', ['userid' => $userid]), $message);
