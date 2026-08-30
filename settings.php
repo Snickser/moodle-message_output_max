@@ -113,9 +113,11 @@ if ($ADMIN->fulltree) {
         '' => get_string('no'),
     ];
     $chats = $maxmanager->send_api_command('chats');
-    foreach ($chats->chats as $key => $value) {
-        if ($value->status == 'active') {
-            $options[$value->chat_id] = $value->title;
+    if (isset($chats->chats) && is_iterable($chats->chats)) {
+        foreach ($chats->chats as $value) {
+            if ($value->status == 'active') {
+                $options[$value->chat_id] = $value->title;
+            }
         }
     }
     $settings->add(new admin_setting_configmultiselect(
