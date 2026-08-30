@@ -127,6 +127,8 @@ class message_output_max extends message_output {
     }
 
     /**
+     * Plain-text body.
+     *
      * @param string $text
      * @return string
      */

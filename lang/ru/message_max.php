@@ -117,10 +117,10 @@ $string['maxlogdump'] = 'Дамп сообщения в лог';
 $string['maxwebhook'] = 'Webhook';
 $string['maxwebhookdump'] = 'Дамп данных webhook в лог';
 $string['messagetemplate'] = 'Шаблон сообщения';
-$string['messagetemplatedescription'] = 'Обычный текст (не HTML). Доступные плейсхолдеры: {message}, {subject}, {sitename}, {wwwroot}, {messagesurl}, {contexturl}, {fullname}, {firstname}, {lastname}. {fullname}/{firstname}/{lastname} — это получатель уведомления (пользователь Moodle, который получит сообщение MAX), а не отправитель. Пустое значение = только {message}. Ссылки вставляйте как URL — MAX сделает их кликабельными сам. Шаблон всегда собирает plain-text тело (без email-футера); настройка fullmessagehtml для уведомлений Moodle игнорируется.';
 $string['messagetemplatedefault'] = '{message}
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 {messagesurl}';
+$string['messagetemplatedescription'] = 'Обычный текст (не HTML). Доступные плейсхолдеры: {message}, {subject}, {sitename}, {wwwroot}, {messagesurl}, {contexturl}, {fullname}, {firstname}, {lastname}. {fullname}/{firstname}/{lastname} — это получатель уведомления (пользователь Moodle, который получит сообщение MAX), а не отправитель. Пустое значение = только {message}. Ссылки вставляйте как URL — MAX сделает их кликабельными сам. Шаблон всегда собирает plain-text тело (без email-футера); настройка fullmessagehtml для уведомлений Moodle игнорируется.';
 $string['mistralapikey'] = 'API ключ Mistral';
 $string['mistralapikey_desc'] = 'Получите API ключ на https://console.mistral.ai/';
 $string['mistralconnectionerror'] = 'Ошибка подключения к Mistral AI';
