@@ -108,7 +108,7 @@ class max_sender extends \core\task\scheduled_task {
 
         $this->curl = new \curl();
 
-        $location = 'https://platform-api.max.ru/messages?user_id=' . $chatid . '&disable_link_preview=true';
+        $location = 'https://platform-api2.max.ru/messages?user_id=' . $chatid . '&disable_link_preview=true';
 
         $params = [
          'user_id' => $chatid,

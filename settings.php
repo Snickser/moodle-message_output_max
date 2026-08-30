@@ -251,6 +251,14 @@ if ($ADMIN->fulltree) {
         false
     ));
 
+    $defaulttemplate = get_string('messagetemplatedefault', 'message_max');
+    $settings->add(new admin_setting_configtextarea(
+        'message_max/messagetemplate',
+        get_string('messagetemplate', 'message_max'),
+        get_string('messagetemplatedescription', 'message_max'),
+        $defaulttemplate
+    ));
+
     $settings->add(new admin_setting_configcheckbox(
         'message_max/maxlog',
         get_string('maxlog', 'message_max'),

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * MAX message plugin version information.
+ * The max message processor.
  *
  * @package     message_max
  * @copyright   2026 Alex Orlov <snickser@gmail.com>
@@ -65,11 +65,89 @@ class message_output_max extends message_output {
             return true;
         }
 
-        if (!empty($eventdata->fullmessagehtml) && $this->manager->config->fullmessagehtml) {
-                return $this->manager->send_message($eventdata->fullmessagehtml, $eventdata->userto->id);
-        } else {
-                return $this->manager->send_message($eventdata->fullmessage, $eventdata->userto->id);
+        $message = $this->format_max_message($eventdata);
+        if ($message === '') {
+            return false;
         }
+
+        return $this->manager->send_message($message, $eventdata->userto->id);
+    }
+
+    /**
+     * Build plain-text MAX message from event data and admin template.
+     *
+     * @param stdClass $eventdata
+     * @return string
+     */
+    protected function format_max_message(stdClass $eventdata): string {
+        global $CFG, $SITE;
+
+        $body = $this->extract_message_body($eventdata);
+        $template = $this->manager->config('messagetemplate');
+        if ($template === null || trim((string) $template) === '') {
+            $template = '{message}';
+        }
+
+        $messagesurl = (new moodle_url('/message/index.php', ['id' => $eventdata->userto->id]))->out(false);
+        $contexturl = '';
+        if (!empty($eventdata->contexturl)) {
+            $contexturl = (string) $eventdata->contexturl;
+        }
+
+        $replacements = [
+            '{message}' => $body,
+            '{subject}' => isset($eventdata->subject) ? (string) $eventdata->subject : '',
+            '{sitename}' => format_string($SITE->fullname, true),
+            '{wwwroot}' => $CFG->wwwroot,
+            '{messagesurl}' => $messagesurl,
+            '{contexturl}' => $contexturl,
+            '{fullname}' => fullname($eventdata->userto),
+            '{firstname}' => $eventdata->userto->firstname ?? '',
+            '{lastname}' => $eventdata->userto->lastname ?? '',
+        ];
+
+        return strtr((string) $template, $replacements);
+    }
+
+    /**
+     * Plain-text body without Moodle email-style footer.
+     *
+     * @param stdClass $eventdata
+     * @return string
+     */
+    protected function extract_message_body(stdClass $eventdata): string {
+        $full = $this->to_plain_text($eventdata->fullmessage ?? '');
+        $body = $this->strip_moodle_message_footer($full);
+
+        if (trim($body) === '') {
+            $body = $this->to_plain_text($eventdata->smallmessage ?? '');
+        }
+
+        return trim($body);
+    }
+
+    /**
+     * @param string $text
+     * @return string
+     */
+    protected function to_plain_text(string $text): string {
+        $text = strip_tags($text);
+        return html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
+     * Remove trailing Moodle "----- / This is a copy of a message..." footer.
+     *
+     * @param string $text
+     * @return string
+     */
+    protected function strip_moodle_message_footer(string $text): string {
+        // Line of mostly dashes (Moodle email separator), then footer until EOF.
+        $stripped = preg_replace('/\R-{3,}[^\S\r\n]*\R[\s\S]*\z/u', '', $text);
+        if ($stripped === null) {
+            return $text;
+        }
+        return $stripped;
     }
 
     /**
