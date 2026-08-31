@@ -136,7 +136,7 @@ $string['maxwebhook'] = 'Webhook';
 $string['maxwebhookdump'] = 'Dump webhook data to log';
 $string['messagetemplate'] = 'Message template';
 $string['messagetemplatedefault'] = '{message}
-‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+__________________
 {messagesurl}';
 $string['messagetemplatedescription'] = 'Plain text (not HTML). Placeholders: {message}, {subject}, {sitename}, {wwwroot}, {messagesurl}, {contexturl}, {fullname}, {firstname}, {lastname}. {fullname}/{firstname}/{lastname} are the notification recipient (the Moodle user who receives the MAX message), not the sender. Empty value means {message} only. Put bare URLs in the template — MAX will make them clickable. The template always builds a plain-text body (footer stripped); the fullmessagehtml setting is ignored for Moodle notifications.';
 $string['mistralapikey'] = 'Mistral API key';

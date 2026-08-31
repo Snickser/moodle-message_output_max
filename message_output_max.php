@@ -80,7 +80,7 @@ class message_output_max extends message_output {
      * @return string
      */
     protected function format_max_message(stdClass $eventdata): string {
-        global $CFG, $SITE;
+        global $CFG;
 
         $body = $this->extract_message_body($eventdata);
         $template = $this->manager->config('messagetemplate');
@@ -88,7 +88,12 @@ class message_output_max extends message_output {
             $template = '{message}';
         }
 
-        $messagesurl = (new moodle_url('/message/index.php', ['id' => $eventdata->userto->id]))->out(false);
+        if ($CFG->messagingallusers) {
+            $messagesurl = (new moodle_url('/message/index.php', ['id' => $eventdata->userfrom->id]))->out(false);
+        } else {
+            $messagesurl = (new moodle_url('/message/index.php', ['id' => $eventdata->userto->id]))->out(false);
+        }
+
         $contexturl = '';
         if (!empty($eventdata->contexturl)) {
             $contexturl = (string) $eventdata->contexturl;
