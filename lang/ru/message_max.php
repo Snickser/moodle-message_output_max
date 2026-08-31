@@ -120,7 +120,7 @@ $string['messagetemplate'] = 'Шаблон сообщения';
 $string['messagetemplatedefault'] = '{message}
 ____________________________________
 Это копия сообщения, отправленного Вам на сайте «{sitename}».
-Для ответа <a href="{messagesurl}">пройдите по ссылке</a>';
+{messagesurl}';
 $string['messagetemplatedescription'] = 'Доступные плейсхолдеры: {message}, {subject}, {sitename}, {wwwroot}, {messagesurl}, {contexturl}, {fullname}, {firstname}, {lastname}. {fullname}/{firstname}/{lastname} — это получатель уведомления (пользователь Moodle, который получит сообщение MAX), а не отправитель. Пустое значение = только {message}. Ссылки вставляйте как URL — MAX сделает их кликабельными сам. Шаблон всегда собирает plain-text тело (без email-футера); настройка fullmessagehtml для уведомлений Moodle игнорируется.';
 $string['mistralapikey'] = 'API ключ Mistral';
 $string['mistralapikey_desc'] = 'Получите API ключ на https://console.mistral.ai/';
