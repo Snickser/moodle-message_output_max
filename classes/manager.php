@@ -93,29 +93,29 @@ class manager {
         // Truncate message to MAX API limit.
         $message = mb_substr($message, 0, 4000, 'UTF-8');
 
-        // Send via external script (tgext) if configured - for rate limiting or custom routing.
-        if ($this->config('tgext')) {
-            $tgext = $this->config('tgext');
+        // Send via external script (maxext) if configured - for rate limiting or custom routing.
+        if ($this->config('maxext')) {
+            $maxext = $this->config('maxext');
 
             // Validate: file must exist and be executable.
-            if (is_file($tgext) && is_executable($tgext)) {
+            if (is_file($maxext) && is_executable($maxext)) {
                 // Validate: path must be within dataroot or moodle root.
-                $realtgext = realpath($tgext);
+                $realmaxext = realpath($maxext);
                 $allowedpaths = [$CFG->dataroot, $CFG->dirroot];
                 $isallowed = false;
                 foreach ($allowedpaths as $allowed) {
-                    if ($realtgext && strpos($realtgext, $allowed) === 0) {
+                    if ($realmaxext && strpos($realmaxext, $allowed) === 0) {
                         $isallowed = true;
                         break;
                     }
                 }
 
                 if (!$isallowed) {
-                    debugging('tgext: file must be located in dataroot or dirroot', DEBUG_DEVELOPER);
+                    debugging('maxext: file must be located in dataroot or dirroot', DEBUG_DEVELOPER);
                     $response = (object)["ok" => false, "error_code" => '403', "description" => 'Invalid path'];
                 } else {
                     // Pass data via stdin.
-                    $fp = popen($tgext, "wb");
+                    $fp = popen($maxext, "wb");
                     if ($fp) {
                         fwrite($fp, $chatid . "\n" . $message);
                         pclose($fp);
@@ -125,7 +125,7 @@ class manager {
                     }
                 }
             } else {
-                $response = (object)["ok" => false, "error_code" => '404', "description" => $tgext];
+                $response = (object)["ok" => false, "error_code" => '404', "description" => $maxext];
             }
         } else {
             // Send via MAX API directly.
@@ -165,7 +165,7 @@ class manager {
             file_put_contents($fname, $buff . "\n", FILE_APPEND | LOCK_EX);
         }
 
-        // MAX API success uses message.body.mid; tgext path uses ok=true.
+        // MAX API success uses message.body.mid; maxext path uses ok=true.
         return !empty($response) && (
             isset($response->message->body->mid) ||
             (!empty($response->ok) && $response->ok == true)
