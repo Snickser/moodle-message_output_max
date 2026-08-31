@@ -89,6 +89,7 @@ $string['botstudents'] = '/students - personal data report';
 $string['botuserid'] = '👑 User ID: {$a}';
 $string['botuseridhelp'] = '/userid - select user';
 $string['configfullmessagehtml'] = 'Get message from "$eventdata->fullmessagehtml" (if available), or from "fullmessage" if not set.';
+$string['configmaxext'] = 'You may need to use an external messaging service, such as bypass ratelimit, or ensure that messages are delivered.';
 $string['configmaxlog'] = 'Write debug info into {$a}/max.log file.';
 $string['configmaxlogdump'] = 'For debugging purposes, write the message to a log file.';
 $string['configmaxwebhook'] = 'This MAX webhook is for testing purposes, do not enable it, otherwise push button twice!';
@@ -102,7 +103,6 @@ $string['configsitebotsecret'] = 'Generated randomly and automatically if empty.
 $string['configsitebottoken'] = 'Enter the site bot token from Botfather here.';
 $string['configsitebotusername'] = 'This will be filled in automatically when you save the bot token.';
 $string['configstriptags'] = 'Strip all html tags from "Text" formatted message (in "HTML" mode unresolved tags are always removed).';
-$string['configmaxext'] = 'You may need to use an external messaging service, such as bypass ratelimit, or ensure that messages are delivered.';
 $string['connectinstructions'] = 'Once you have clicked the link below, you will need to allow the link to open in MAX with
 your MAX account. In MAX, click the "Start" button in the "{$a}" chat that opens to connect your account to Moodle.
 Once completed, come back to this page and click "Save changes". Full documentation
@@ -130,6 +130,7 @@ $string['groupinvite'] = '⚠️ Please join our news channel to stay up to date
 $string['groupinvitedone'] = 'You have been added to our news channel <a href="{$a->link}">{$a->title}</a>';
 $string['maxbottoken'] = 'MAX bot token';
 $string['maxchatid'] = 'MAX chat id';
+$string['maxext'] = 'Path to external sender';
 $string['maxlog'] = 'Enable logging';
 $string['maxlogdump'] = 'Dump message to log';
 $string['maxwebhook'] = 'Webhook';
@@ -200,7 +201,6 @@ $string['sitebottoken'] = 'Bot token for site';
 $string['sitebottokennotsetup'] = 'Bot token for site must be specified in plugin settings.';
 $string['sitebotusername'] = 'Bot username for site';
 $string['striptags'] = 'Strip tags';
-$string['maxext'] = 'Path to external sender';
 $string['unsetwebhook'] = 'Unset MAX webhook';
 $string['unsetwebhooksuccess'] = 'Webhook removed';
 $string['usehelp'] = 'Use /help';
