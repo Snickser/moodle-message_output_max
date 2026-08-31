@@ -86,7 +86,7 @@ class manager {
         if ($markdown) {
             $message = $message;
         } else if ($this->config('parsemode') == 'HTML') {
-            $message = strip_tags($message, "<b><strong><i><em><a><u><ins><code><pre><blockquote><tg-spoiler><tg-emoji>");
+            $message = strip_tags($message, "<i><em><b><strong><del><s><ins><u><pre><code><a><mark><h1><h2><h3><h4><blockquote>");
         } else if ($this->config('striptags')) {
             $message = html_to_text($message);
         }
