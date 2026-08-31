@@ -80,7 +80,7 @@ class message_output_max extends message_output {
      * @return string
      */
     protected function format_max_message(stdClass $eventdata): string {
-        global $CFG;
+        global $CFG, $SITE;
 
         $body = $this->extract_message_body($eventdata);
         $template = $this->manager->config('messagetemplate');
