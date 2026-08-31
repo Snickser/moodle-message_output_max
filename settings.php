@@ -281,9 +281,9 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_configexecutable(
-        'message_max/tgext',
-        get_string('tgext', 'message_max'),
-        get_string('configtgext', 'message_max'),
+        'message_max/maxext',
+        get_string('maxext', 'message_max'),
+        get_string('configmaxext', 'message_max'),
         '',
         PARAM_TEXT
     ));

@@ -102,7 +102,7 @@ $string['configsitebotsecret'] = 'Generated randomly and automatically if empty.
 $string['configsitebottoken'] = 'Enter the site bot token from Botfather here.';
 $string['configsitebotusername'] = 'This will be filled in automatically when you save the bot token.';
 $string['configstriptags'] = 'Strip all html tags from "Text" formatted message (in "HTML" mode unresolved tags are always removed).';
-$string['configtgext'] = 'You may need to use an external messaging service, such as bypass ratelimit, or ensure that messages are delivered.';
+$string['configmaxext'] = 'You may need to use an external messaging service, such as bypass ratelimit, or ensure that messages are delivered.';
 $string['connectinstructions'] = 'Once you have clicked the link below, you will need to allow the link to open in MAX with
 your MAX account. In MAX, click the "Start" button in the "{$a}" chat that opens to connect your account to Moodle.
 Once completed, come back to this page and click "Save changes". Full documentation
@@ -200,7 +200,7 @@ $string['sitebottoken'] = 'Bot token for site';
 $string['sitebottokennotsetup'] = 'Bot token for site must be specified in plugin settings.';
 $string['sitebotusername'] = 'Bot username for site';
 $string['striptags'] = 'Strip tags';
-$string['tgext'] = 'Path to external sender';
+$string['maxext'] = 'Path to external sender';
 $string['unsetwebhook'] = 'Unset MAX webhook';
 $string['unsetwebhooksuccess'] = 'Webhook removed';
 $string['usehelp'] = 'Use /help';
