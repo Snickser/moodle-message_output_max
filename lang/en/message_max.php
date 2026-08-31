@@ -121,6 +121,7 @@ TON UQA1vhoJmBLgzTHKbJuuscr6UPwnP9TEH3eJYFKIiVgUIaro<br>
 BTC 1GFTTPCgRTC8yYL1gU7wBZRfhRNRBdLZsq<br>
 TRX TRGMc3b63Lus6ehLasbbHxsb2rHky5LbPe<br>
 ';
+$string['enablemessagetemplate'] = 'Enable custom message template';
 $string['enter'] = 'Enter';
 $string['enter_phone'] = 'For better interaction with curators, please provide your mobile phone number.';
 $string['enter_time'] = 'The date and time are specified in mnemonic or one of the standard formats, for example: YY-MM-DD HH:MM';

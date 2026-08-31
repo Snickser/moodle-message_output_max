@@ -251,6 +251,13 @@ if ($ADMIN->fulltree) {
         false
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'message_max/enablemessagetemplate',
+        get_string('enablemessagetemplate', 'message_max'),
+        get_string('enablemessagetemplate', 'message_max'),
+        false
+    ));
+
     $defaulttemplate = get_string('messagetemplatedefault', 'message_max');
     $settings->add(new admin_setting_configtextarea(
         'message_max/messagetemplate',

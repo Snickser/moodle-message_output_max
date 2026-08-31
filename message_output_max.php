@@ -65,7 +65,15 @@ class message_output_max extends message_output {
             return true;
         }
 
-        $message = $this->format_max_message($eventdata);
+        if ($this->manager->config->enablemessagetemplate) {
+            $message = $this->format_max_message($eventdata);
+        } else {
+            if (!empty($eventdata->fullmessagehtml) && $this->manager->config->fullmessagehtml) {
+                return $this->manager->send_message($eventdata->fullmessagehtml, $eventdata->userto->id);
+            } else {
+                return $this->manager->send_message($eventdata->fullmessage, $eventdata->userto->id);
+            }
+        }
         if ($message === '') {
             return false;
         }
