@@ -72,11 +72,11 @@ $userid = null;
 
 // Process bot_started event or user connection request.
 if (
-    (isset($data->user->name) && isset($data->payload) && isset($data->user_id)) ||
+    (isset($data->user->name) && isset($data->payload) && isset($data->user->user_id)) ||
     (isset($data->update_type) && $data->update_type == 'bot_started')
 ) {
     // Sanitize input data.
-    $fromid = clean_param($data->user_id ?? null, PARAM_INT);
+    $fromid = clean_param($data->user->user_id ?? null, PARAM_INT);
     $payload = clean_param($data->payload ?? null, PARAM_TEXT);
     $username = clean_param($data->user->name ?? null, PARAM_TEXT);
     $firstname = clean_param($data->user->first_name ?? null, PARAM_TEXT);
